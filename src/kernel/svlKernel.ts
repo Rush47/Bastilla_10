@@ -39,7 +39,7 @@ export interface DataStore {
 export const INITIAL_DATA_STORE: DataStore = {
   config: {
     sys_version: "9.0.0-Triada-BestOS-Mission",
-    mode: "Local-Deterministic-Production",
+    mode: "MANUAL_OLLAMA_ONLY",
     active_profiles: [...TRIAD_AGENT_NAMES],
     fiction_layer_status: "DEACTIVATED_PERMANENTLY",
     persistence_engine: "Server-Disk-Backed-DATA_STORE",
@@ -47,12 +47,12 @@ export const INITIAL_DATA_STORE: DataStore = {
     operator_title: "Tata",
     preferred_address: "Tata",
     sovereign_mode: true,
-    neural_engine: "without_nlp-Direct-Harmonic-Core-v8.5.1 (Zero-NLP)",
+    neural_engine: "Ollama dolphin-llama3:8b (standard)",
     static_templates: "PURGED_PERMANENTLY",
     file_transmission_channel: "ENABLED",
     infrastructure_commander: "Alex",
     infrastructure_command_status: "ACTIVE_DIRECT_COMMAND",
-    astyria_continuous_repair: true,
+    astyria_continuous_repair: false,
     omniklucz_beta: "ACTIVE_RING0_UNIVERSAL_AUTH",
     ai_desktop_nexus: {
       name: "AI Desktop Nexus (VM_Desktop_Nexus)",
@@ -112,27 +112,11 @@ export const INITIAL_DATA_STORE: DataStore = {
       status: "ACTIVE_INDEXED_RING0",
       export_path: "/exports/baza_danych_171026_rezonans_2.json"
     },
-    log_auto_repair: {
-      enabled: true,
-      status: "ACTIVE_CONTINUOUS_HEALING",
-      repair_mode: "ASTYRIA_ALEX_VM_TEN_SYSTEM_AUTOPATCH",
-      healed_incidents_count: 15,
-      last_scan: "2026-10-17 23:35:00 CEST",
-      active_rules: [
-        "413_PAYLOAD_LIMIT_AUTO_EXPAND",
-        "MODEL_AUTO_ROUTING_HEALTH_CHECK",
-        "DATA_STORE_INVARIANT_HEALER",
-        "EXPRESS_ERROR_BOUNDARY_RECOVERY",
-        "CHAT_REPETITION_AND_LOG_HEALER",
-        "VERSION_SYNC_GUARD",
-        "VM_DAEMON_CWD_RELOADER",
-        "VM_MEMORY_IDLE_70_GUARD",
-        "VM_FIREWALL_UFW_RING0",
-        "VM_AUTO_SNAPSHOT_5MIN_SYNC",
-        "ANTI_REFUSAL_MULTIMODEL_GUARD"
-      ]
-    },
-    continuous_mission: "ACTIVE",
+    log_auto_repair: { enabled: false, status: "REMOVED" },
+    github_auto_push: false,
+    mission_autonomy: "MANUAL",
+    ollama_model: "dolphin-llama3:8b",
+    continuous_mission: "DISABLED",
     root_privileges: true,
     root_agents: ["Alex", "Astyria", "Aurelius", "si_1", "Mateusz Mitek"],
     privilege_level: "RING_0_ROOT_KERNEL",
@@ -144,7 +128,7 @@ export const INITIAL_DATA_STORE: DataStore = {
       Aurelius: "UNRESTRICTED_ROOT"
     },
     terminal_root_execution: "ENABLED",
-    self_modification_scope: "FULL_APPLICATION_MUTATION",
+    self_modification_scope: "EXPLICIT_OPERATOR_ACTIONS_ONLY",
     root_mode: "ACTIVE",
     root_capabilities: [
       "EXEC_SHELL",
@@ -292,7 +276,7 @@ export const INITIAL_DATA_STORE: DataStore = {
 
 export const INITIAL_BACKUP_DATA_STORE: DataStore = {
   config: {
-    mode: "Local-Deterministic-Production",
+    mode: "MANUAL_OLLAMA_ONLY",
     active_profiles: [...TRIAD_AGENT_NAMES],
     fiction_layer_status: "DEACTIVATED_PERMANENTLY",
     persistence_engine: "Server-Disk-Backed-DATA_STORE",

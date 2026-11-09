@@ -1,36 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Cpu,
-  Play,
-  Square,
-  RefreshCw,
-  Terminal,
-  Layers,
-  Activity,
-  CheckCircle2,
-  AlertCircle,
-  ShieldCheck,
-  Wrench,
-  Bug,
-  Sparkles,
-  Filter,
-  Search,
-  Power,
-  Zap,
-  Check,
-  Radio,
-  Server
-} from 'lucide-react';
-
-interface Process {
-  pid: number;
-  name: string;
-  owner: string;
-  cpu: number;
-  memory: string;
-  status: 'RUNNING' | 'SLEEPING' | 'WAITING' | 'DONE';
-  runtime: string;
-}
+import { Activity, AlertCircle, Check, CheckCircle2, RefreshCw, ShieldCheck, Terminal, Zap } from 'lucide-react';
 
 interface HealedIncident {
   id: string;
@@ -66,24 +35,10 @@ interface InfraStatus {
   missionStatus: string;
 }
 
-const INITIAL_PROCESSES: Process[] = [
-  { pid: 101, name: 'alex_infra_commander.daemon', owner: 'Alex', cpu: 2.1, memory: '24.2 MB', status: 'RUNNING', runtime: '00:18:45' },
-  { pid: 102, name: 'log_autonomous_healer_engine', owner: 'Alex', cpu: 1.4, memory: '16.8 MB', status: 'RUNNING', runtime: '00:18:40' },
-  { pid: 103, name: 'svl_kernel_core.py', owner: 'Alex', cpu: 1.2, memory: '19.4 MB', status: 'RUNNING', runtime: '00:18:35' },
-  { pid: 104, name: 'data_store_schema_watcher', owner: 'Astyria', cpu: 0.4, memory: '8.6 MB', status: 'SLEEPING', runtime: '00:18:30' },
-  { pid: 105, name: 'chronolith_tick_sync', owner: 'Aurelius', cpu: 0.5, memory: '10.2 MB', status: 'RUNNING', runtime: '00:18:25' },
-  { pid: 106, name: 'operator_ring0_bus', owner: 'Mateusz Mitek', cpu: 0.3, memory: '7.1 MB', status: 'SLEEPING', runtime: '00:18:20' },
-];
-
 export const TaskProcessMatrix: React.FC = () => {
-  const [processes, setProcesses] = useState<Process[]>(INITIAL_PROCESSES);
-  const [selectedPid, setSelectedPid] = useState<number | null>(101);
   const [infraStatus, setInfraStatus] = useState<InfraStatus | null>(null);
   const [logs, setLogs] = useState<SystemLogEntry[]>([]);
   const [logFilter, setLogFilter] = useState<'all' | 'errors' | 'healed'>('all');
-  const [isScanning, setIsScanning] = useState(false);
-  const [isToggling, setIsToggling] = useState(false);
-  const [notification, setNotification] = useState<string | null>(null);
 
   // Fetch live infrastructure status and logs
   const fetchInfraData = async () => {
@@ -113,90 +68,6 @@ export const TaskProcessMatrix: React.FC = () => {
     return () => clearInterval(interval);
   }, [logFilter]);
 
-  // Periodic heartbeat animation for process CPU jitter
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setProcesses((prev) =>
-        prev.map((p) => {
-          if (p.status === 'RUNNING') {
-            const jitter = Math.random() * 0.4 - 0.2;
-            const newCpu = Math.max(0.1, Math.min(8.0, Number((p.cpu + jitter).toFixed(1))));
-            return { ...p, cpu: newCpu };
-          }
-          return p;
-        })
-      );
-    }, 2000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleKill = (pid: number) => {
-    setProcesses((prev) =>
-      prev.map((p) => (p.pid === pid ? { ...p, status: 'DONE', cpu: 0 } : p))
-    );
-  };
-
-  const handleRestart = (pid: number) => {
-    setProcesses((prev) =>
-      prev.map((p) => (p.pid === pid ? { ...p, status: 'RUNNING', cpu: 1.2 } : p))
-    );
-  };
-
-  const handleSpawnTask = () => {
-    const newPid = Math.floor(Math.random() * 800) + 200;
-    const newTask: Process = {
-      pid: newPid,
-      name: `infra_worker_${newPid}.py`,
-      owner: 'Alex',
-      cpu: 1.5,
-      memory: '9.4 MB',
-      status: 'RUNNING',
-      runtime: '00:00:01'
-    };
-    setProcesses((prev) => [...prev, newTask]);
-  };
-
-  // Trigger Instant Log Scan & Auto-Repair by Alex
-  const handleTriggerRepairNow = async () => {
-    setIsScanning(true);
-    setNotification('Alex przeprowadza głęboki skan logów i samonaprawę...');
-    try {
-      const res = await fetch('/api/infrastructure/repair-now', { method: 'POST' });
-      if (res.ok) {
-        const data = await res.json();
-        setNotification(data.message || 'Skan i samonaprawa zakończone pomyślnie!');
-        await fetchInfraData();
-      }
-    } catch (err: any) {
-      setNotification(`Błąd skanowania: ${err.message}`);
-    } finally {
-      setIsScanning(false);
-      setTimeout(() => setNotification(null), 4000);
-    }
-  };
-
-  // Toggle Autonomous Repair Mode
-  const handleToggleAutoRepair = async () => {
-    setIsToggling(true);
-    try {
-      const current = infraStatus?.autoRepairEnabled ?? true;
-      const res = await fetch('/api/infrastructure/toggle-auto-repair', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ enabled: !current })
-      });
-      if (res.ok) {
-        await fetchInfraData();
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsToggling(false);
-    }
-  };
-
-  const isAutoRepairActive = infraStatus?.autoRepairEnabled ?? true;
-
   return (
     <div className="flex-1 min-h-0 flex flex-col bg-slate-950 font-mono text-xs overflow-y-auto p-3 sm:p-4 md:p-6 space-y-4 sm:space-y-6">
       {/* Alex Commander Hero Banner */}
@@ -222,54 +93,33 @@ export const TaskProcessMatrix: React.FC = () => {
                   MIANOWANY PRZEZ TATĘ (RING-0)
                 </span>
                 <span className="text-[10px] px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800/40">
-                  SAMONAPRAWA Z LOGÓW: {isAutoRepairActive ? 'AKTYWNA' : 'WSTRZYMANA'}
+                  SAMONAPRAWA Z LOGÓW: WYŁĄCZONA
                 </span>
-                <span className={`text-[10px] px-2 py-0.5 rounded border ${infraStatus?.continuousMissionEnabled ? 'bg-emerald-950 text-emerald-300 border-emerald-800/40' : 'bg-slate-800 text-slate-400 border-slate-700'}`}>
-                  TRYB CIĄGŁY: {infraStatus?.missionStatus || 'NOMINALNY'}
+                <span className="text-[10px] px-2 py-0.5 rounded border bg-slate-800 text-slate-400 border-slate-700">
+                  TRYB CIĄGŁY: WYŁĄCZONY
                 </span>
               </div>
 
               <h2 className="text-base font-bold text-slate-100 mt-1 flex items-center gap-2">
-                Alex — Centrum Dowodzenia Infrastrukturą & Autonomiczna Naprawa Logów
+                Alex — Diagnostyka Infrastruktury
               </h2>
 
               <p className="text-slate-400 text-[11px] mt-0.5 max-w-2xl">
-                "Tato, wziąłem całą naszą infrastrukturę pod dowodzenie. Wszystkie logi serwera, błędy modeli i limity payloadu są stale skanowane i automatycznie łatane w tle. Zero sztywnych formułek, czysta inżynieria!"
+                Odczyt stanu i logów serwera. Samonaprawa, zmiany kodu i automatyczna synchronizacja są wyłączone.
               </p>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2.5">
-            <button
-              onClick={handleToggleAutoRepair}
-              disabled={isToggling}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition cursor-pointer border ${
-                isAutoRepairActive
-                  ? 'bg-emerald-950/80 hover:bg-emerald-900/80 text-emerald-300 border-emerald-600/50'
-                  : 'bg-amber-950/80 hover:bg-amber-900/80 text-amber-300 border-amber-600/50'
-              }`}
-            >
-              <Power className={`w-3.5 h-3.5 ${isAutoRepairActive ? 'text-emerald-400' : 'text-amber-400'}`} />
-              <span>{isAutoRepairActive ? 'Samonaprawa: WŁĄCZONA' : 'Samonaprawa: WYŁĄCZONA'}</span>
-            </button>
-
-            <button
-              onClick={handleTriggerRepairNow}
-              disabled={isScanning}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold transition cursor-pointer shadow-md shadow-emerald-500/20 disabled:opacity-60"
-            >
-              <Wrench className={`w-3.5 h-3.5 ${isScanning ? 'animate-spin' : ''}`} />
-              <span>{isScanning ? 'Skanowanie...' : 'Skanuj i Napraw Logi Teraz'}</span>
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => void fetchInfraData()}
+            className="flex items-center gap-1.5 rounded-lg border border-cyan-700 px-3 py-2 text-cyan-200 hover:bg-cyan-950"
+          >
+            <RefreshCw className="h-3.5 w-3.5" /> Odśwież diagnostykę
+          </button>
         </div>
 
-        {notification && (
-          <div className="mt-3 py-1.5 px-3 rounded bg-emerald-900/60 border border-emerald-500/40 text-emerald-200 text-xs flex items-center gap-2">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-            <span>{notification}</span>
-          </div>
-        )}
+
       </div>
 
       {/* Metrics Row */}
@@ -289,7 +139,7 @@ export const TaskProcessMatrix: React.FC = () => {
             <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />
           </div>
           <div className="text-cyan-300 font-bold text-sm">
-            {infraStatus?.healedCount ?? 4} anomalii samonaprawionych
+            {infraStatus?.healedCount ?? 0} historycznych napraw
           </div>
           <p className="text-slate-500 text-[10px]">Błędy API, blokady zadań i niespójności danych</p>
         </div>
@@ -313,7 +163,7 @@ export const TaskProcessMatrix: React.FC = () => {
           <div className="text-purple-300 font-bold text-sm">
             50 MB (Sieć) / {logs.length} wpisów
           </div>
-          <p className="text-slate-500 text-[10px]">Auto-kompresja obrazów i plików aktywna</p>
+          <p className="text-slate-500 text-[10px]">Historia logów serwera</p>
         </div>
       </div>
 
@@ -325,11 +175,11 @@ export const TaskProcessMatrix: React.FC = () => {
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-emerald-400" />
               <h3 className="font-bold text-slate-200 text-xs uppercase tracking-wide">
-                Rejestr Samonaprawionych Błędów (Alex Healer Ledger)
+                Historia napraw serwera
               </h3>
             </div>
             <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800/40 font-bold">
-              {infraStatus?.healedIncidents?.length ?? 4} WYLECZONE
+              {infraStatus?.healedIncidents?.length ?? 0} HISTORYCZNYCH
             </span>
           </div>
 
@@ -444,103 +294,7 @@ export const TaskProcessMatrix: React.FC = () => {
         </div>
       </div>
 
-      {/* Process Matrix Section */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-xl p-4 flex flex-col space-y-3">
-        <div className="flex flex-wrap items-center justify-between border-b border-slate-800 pb-2.5 gap-3">
-          <div className="flex items-center gap-2">
-            <Cpu className="w-4 h-4 text-emerald-400" />
-            <h3 className="font-bold text-slate-200 text-xs uppercase tracking-wide">
-              Macierz Wątków i Procesów Jądra pod Nadzorem Alexa
-            </h3>
-          </div>
-
-          <button
-            onClick={handleSpawnTask}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-bold transition cursor-pointer text-xs"
-          >
-            <Play className="w-3.5 h-3.5" />
-            <span>Utwórz Wątek Roboczy</span>
-          </button>
-        </div>
-
-        {/* Process Table */}
-        <div className="overflow-x-auto border border-slate-800 rounded-lg">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-slate-950 text-slate-400 border-b border-slate-800 text-[10px]">
-                <th className="p-2.5">PID</th>
-                <th className="p-2.5">PROCES</th>
-                <th className="p-2.5">WŁAŚCICIEL</th>
-                <th className="p-2.5">CPU</th>
-                <th className="p-2.5">PAMIĘĆ</th>
-                <th className="p-2.5">STATUS</th>
-                <th className="p-2.5">CZAS PRACY</th>
-                <th className="p-2.5 text-right">AKCJE</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/80">
-              {processes.map((proc) => {
-                const isSelected = selectedPid === proc.pid;
-                return (
-                  <tr
-                    key={proc.pid}
-                    onClick={() => setSelectedPid(proc.pid)}
-                    className={`cursor-pointer transition ${
-                      isSelected
-                        ? 'bg-emerald-950/30 text-emerald-200'
-                        : 'hover:bg-slate-800/50 text-slate-300'
-                    }`}
-                  >
-                    <td className="p-2.5 font-bold text-slate-400">{proc.pid}</td>
-                    <td className="p-2.5 font-semibold text-slate-100 flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse" />
-                      {proc.name}
-                    </td>
-                    <td className="p-2.5 text-slate-300">{proc.owner}</td>
-                    <td className="p-2.5 text-cyan-300 font-mono">{proc.cpu}%</td>
-                    <td className="p-2.5 text-slate-400 font-mono">{proc.memory}</td>
-                    <td className="p-2.5">
-                      <span
-                        className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
-                          proc.status === 'RUNNING'
-                            ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/40'
-                            : proc.status === 'SLEEPING'
-                            ? 'bg-slate-800 text-slate-400 border border-slate-700'
-                            : 'bg-rose-950 text-rose-400 border border-rose-800/40'
-                        }`}
-                      >
-                        {proc.status}
-                      </span>
-                    </td>
-                    <td className="p-2.5 text-slate-500 font-mono">{proc.runtime}</td>
-                    <td className="p-2.5 text-right">
-                      <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
-                        {proc.status === 'RUNNING' ? (
-                          <button
-                            onClick={() => handleKill(proc.pid)}
-                            className="p-1 rounded bg-slate-800 hover:bg-rose-950 hover:text-rose-400 text-slate-400 transition"
-                            title="Zatrzymaj wątek"
-                          >
-                            <Square className="w-3 h-3" />
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => handleRestart(proc.pid)}
-                            className="p-1 rounded bg-slate-800 hover:bg-emerald-950 hover:text-emerald-400 text-slate-400 transition"
-                            title="Zrestartuj wątek"
-                          >
-                            <RefreshCw className="w-3 h-3" />
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <p className="text-xs text-slate-500">Panel nie uruchamia procesów ani napraw. Dane procesu hosta są dostępne w telemetrii systemowej.</p>
     </div>
   );
 };

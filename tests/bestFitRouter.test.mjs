@@ -55,3 +55,10 @@ test('raport zawiera argument, dopasowanie i czas', () => {
   assert.match(report, /Dopasowanie: 50% · czas: 3 ms/);
   assert.match(report, /RAM: 1 GB/);
 });
+
+test('@model is a separate prefix, not the beginning of an ordinary word', () => {
+  assert.equal(stripForceLlmPrefix('  @MODEL\nCześć!'), 'Cześć!');
+  assert.equal(stripForceLlmPrefix('@modelowanie jest ciekawe'), '@modelowanie jest ciekawe');
+  assert.equal(stripForceLlmPrefix('@model'), '');
+  assert.equal(selectBestFit(matrix, '@modelowanie status')?.argument.id, 'SYSTEM_STATUS');
+});

@@ -10,6 +10,7 @@
  * z podstawionym fetch i nie dodaje zależności npm.
  */
 import { parseGeminiModelChain, runWithGeminiFallback } from './geminiVm.ts';
+import { STANDARD_OLLAMA_MODEL } from './modelPolicy.ts';
 
 export type LlmRole = 'user' | 'assistant';
 export type LlmProvider = 'gemini' | 'xai' | 'ollama';
@@ -36,6 +37,7 @@ export interface LlmRequest {
 }
 
 export interface LlmChainConfig {
+  requireOllamaModelConfirmation?: boolean;
   geminiApiKey?: string;
   geminiModel?: string;
   geminiFallbackModels?: string;
@@ -43,7 +45,7 @@ export interface LlmChainConfig {
   xaiApiKey?: string;
   xaiModel?: string;
   xaiBaseUrl?: string;
-  /** Pusty lub "auto" = pierwszy pobrany model z /api/tags. */
+  /** Pusty lub "auto" = przypięty standard dolphin-llama3:8b, nigdy automatyczny wybór. */
   ollamaModel?: string;
   ollamaBaseUrl?: string;
   /** Jak długo model zostaje w pamięci po odpowiedzi (np. "24h", "-1" = na stałe). Domyślnie 24h. */
@@ -340,11 +342,9 @@ export function pickOllamaChatModel(models: Array<{ name: string; size?: number 
   return [...chat].sort((a, b) => (b.size ?? 0) - (a.size ?? 0))[0].name;
 }
 
-const resolvedOllamaModels = new Map<string, string>();
 const ollamaVisionSupport = new Map<string, boolean>();
 
 export function resetOllamaModelCache(): void {
-  resolvedOllamaModels.clear();
   ollamaVisionSupport.clear();
 }
 
@@ -385,25 +385,8 @@ async function resolveOllamaModel(
   signal?: AbortSignal,
 ): Promise<string> {
   const configured = (config.ollamaModel || '').trim();
-  if (configured && configured.toLowerCase() !== 'auto') return configured;
-  const cached = resolvedOllamaModels.get(base);
-  if (cached) return cached;
-  let response: Response;
-  try {
-    response = await doFetch(`${base}/api/tags`, { signal });
-  } catch (error: any) {
-    if (error?.name === 'AbortError') throw error;
-    throw new LlmProviderError('ollama', 503, `Ollama: serwer nie odpowiada pod ${base} (uruchom: ollama serve).`);
-  }
-  if (!response.ok) throw new LlmProviderError('ollama', response.status, `Ollama: nie można pobrać listy modeli (HTTP ${response.status}).`);
-  const data: any = await response.json();
-  const models = Array.isArray(data?.models) ? data.models : [];
-  const picked = pickOllamaChatModel(models.map((model: any) => ({ name: String(model?.name || ''), size: Number(model?.size) || 0 })));
-  if (!picked) {
-    throw new LlmProviderError('ollama', 404, 'Ollama: brak pobranych modeli. Pobierz model: npm run setup:ollama');
-  }
-  resolvedOllamaModels.set(base, picked);
-  return picked;
+  // Nie dobieraj modelu na podstawie listy ani stanu RAM. Stare `auto` również oznacza 8B.
+  return configured && configured.toLowerCase() !== 'auto' ? configured : STANDARD_OLLAMA_MODEL;
 }
 
 export async function generateOllama(
@@ -421,7 +404,7 @@ export async function generateOllama(
     throw new LlmProviderError(
       'ollama',
       400,
-      `Ollama: model ${model} nie analizuje zdjęć. Pobierz model z obsługą obrazów (np. ollama pull gemma3:4b) albo wyślij załącznik tekstowy.`,
+      `Ollama: model ${model} nie analizuje zdjęć. Wyślij załącznik tekstowy; model nie zostanie automatycznie zmieniony.`,
     );
   }
   const messages = [
@@ -448,17 +431,21 @@ export async function generateOllama(
       });
     } catch (error: any) {
       if (error?.name === 'AbortError') throw error;
-      throw new LlmProviderError('ollama', 503, `Ollama: serwer nie odpowiada pod ${base} (uruchom: ollama serve).`);
+      throw new LlmProviderError('ollama', 503, `Ollama: serwer nie odpowiada pod ${base} [${model}]. Sprawdź adres i stan istniejącej usługi; model nie zostanie zmieniony.`);
     }
     if (!response.ok) {
       const body = await readErrorText(response);
       if (disableThinking && response.status === 400 && /think/i.test(body)) return null;
-      const hint = response.status === 404 ? ` Pobierz model: ollama pull ${model}` : '';
+      const hint = response.status === 404 ? ` Wymagany model ${model} jest niedostępny na tym serwerze Ollamy. Nie wybrano innego modelu i nie uruchomiono instalacji.` : '';
       const details = describeOllamaErrorBody(body);
       const detailText = details ? ` Szczegóły: ${details}` : '';
       throw new LlmProviderError('ollama', response.status, `${describeStatus('ollama', response.status)} [${model}]${hint}${detailText}`);
     }
     const data: any = await response.json();
+    if ((config.requireOllamaModelConfirmation && data?.model !== model)
+      || (typeof data?.model === 'string' && data.model !== model)) {
+      throw new LlmProviderError('ollama', 502, `Ollama nie potwierdziła wymaganego modelu ${model}. Odpowiedź innego modelu została odrzucona.`);
+    }
     const text = stripThinking(typeof data?.message?.content === 'string' ? data.message.content : '');
     if (!text) throw new LlmProviderError('ollama', 502, `Ollama: pusta odpowiedź [${model}]`);
     return text;

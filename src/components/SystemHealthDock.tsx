@@ -1,23 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldCheck, Cpu, AlertTriangle, ChevronUp, ChevronDown } from 'lucide-react';
+import { ShieldCheck, ChevronUp, ChevronDown } from 'lucide-react';
 
 export const SystemHealthDock: React.FC = () => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [status, setStatus] = useState({ system: 'NOMINAL', repairs: 0 });
+  const [status, setStatus] = useState({ system: 'BRAK DANYCH', repairs: 0 });
 
   // Poll status occasionally
   useEffect(() => {
     const fetchStatus = async () => {
       try {
         const res = await fetch('/api/infrastructure/status');
+        if (!res.ok) throw new Error('Brak statusu API');
         if (res.ok) {
           const data = await res.json();
           setStatus({
-            system: data.healedIncidents.length > 5 ? 'STABILNY' : 'NOMINALNY',
-            repairs: data.healedIncidents.length
+            system: 'API DOSTĘPNE',
+            repairs: Array.isArray(data.healedIncidents) ? data.healedIncidents.length : 0
           });
         }
-      } catch {}
+      } catch { setStatus({ system: 'BRAK POŁĄCZENIA', repairs: 0 }); }
     };
     fetchStatus();
     const timer = setInterval(fetchStatus, 10000);
@@ -29,7 +30,7 @@ export const SystemHealthDock: React.FC = () => {
       <div className="bg-slate-900 border border-slate-700 rounded-lg shadow-xl overflow-hidden">
         <div className="flex items-center justify-between p-2 bg-slate-800">
           <div className="flex items-center gap-2">
-            <ShieldCheck className={`w-4 h-4 ${status.system === 'NOMINALNY' ? 'text-emerald-400' : 'text-amber-400'}`} />
+            <ShieldCheck className={`w-4 h-4 ${status.system === 'API DOSTĘPNE' ? 'text-emerald-400' : 'text-amber-400'}`} />
             {isExpanded && <span className="text-xs font-bold text-slate-200">System SVL Health</span>}
           </div>
           <button aria-label="Stan systemu" aria-expanded={isExpanded} onClick={() => setIsExpanded(!isExpanded)} className="flex min-h-8 min-w-8 items-center justify-center text-slate-400 cursor-pointer">
@@ -40,11 +41,11 @@ export const SystemHealthDock: React.FC = () => {
         {isExpanded && (
           <div className="p-3 space-y-2">
             <div className="flex justify-between text-[10px]">
-              <span className="text-slate-400">Status jądra:</span>
+              <span className="text-slate-400">Stan API:</span>
               <span className="text-emerald-300 font-bold">{status.system}</span>
             </div>
             <div className="flex justify-between text-[10px]">
-              <span className="text-slate-400">Wyleczone incydenty:</span>
+              <span className="text-slate-400">Historyczne naprawy:</span>
               <span className="text-cyan-300 font-bold">{status.repairs}</span>
             </div>
           </div>

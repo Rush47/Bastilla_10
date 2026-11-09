@@ -5,7 +5,7 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from .core import AGENTS, Orchestrator, observe_system
-from .ollama_agent import chat as ollama_chat, OllamaUnavailable
+from .ollama_agent import chat as ollama_chat, OllamaUnavailable, STANDARD_OLLAMA_MODEL
 from .svl_registry import SVLSystemKernel
 from .workspace_sync import workspace_events
 
@@ -64,33 +64,27 @@ async def system_chat(req: ChatRequest):
 @app.get("/api/diagnostics/agents")
 async def agents_diagnostics():
     report = SVLSystemKernel().generate_system_status_report()
-    base = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434").rstrip("/")
-    model = os.getenv("OLLAMA_MODEL", "dolphin3:8b")
-    fallback = os.getenv("OLLAMA_FALLBACK_MODEL", "gemma4-e4b-ultra-uncensored")
+    base = (os.getenv("OLLAMA_BASE_URL", "").strip() or "http://127.0.0.1:11434").rstrip("/")
+    system = report["agents"]["system"]
+    system["model"] = STANDARD_OLLAMA_MODEL
+    system["model_installed"] = False
+    system["available_for_chat"] = False
     try:
         async with httpx.AsyncClient(timeout=3, trust_env=False) as client:
             response = await client.get(base + "/api/tags")
             response.raise_for_status()
-            available = [entry.get("name") for entry in response.json().get("models", [])]
-        installed = model in available
-        fallback_installed = fallback in available
-        report["agents"]["system"]["connection_status"] = "LOCAL_MODEL_AVAILABLE" if installed else "MODEL_NOT_INSTALLED"
-        report["agents"]["system"]["connection_label"] = "Model dostępny" if installed else "Model nie jest pobrany"
-        report["agents"]["system"]["model"] = model
-        report["agents"]["system"]["model_installed"] = installed
-        report["agents"]["system"]["fallback_model"] = fallback
-        report["agents"]["system"]["fallback_installed"] = fallback_installed
-        report["agents"]["system"]["available_for_chat"] = installed or fallback_installed
-        report["agents"]["system"]["connection_status"] = "LOCAL_MODEL_AVAILABLE" if installed or fallback_installed else "MODEL_NOT_INSTALLED"
-        report["agents"]["system"]["connection_label"] = "Główny model dostępny" if installed else ("Model awaryjny dostępny" if fallback_installed else "Brak zainstalowanych modeli")
-    except (httpx.HTTPError, ValueError, KeyError):
-        report["agents"]["system"]["connection_status"] = "OLLAMA_UNAVAILABLE"
-        report["agents"]["system"]["connection_label"] = "Ollama niedostępna"
-        report["agents"]["system"]["model"] = model
-        report["agents"]["system"]["model_installed"] = False
-        report["agents"]["system"]["fallback_model"] = fallback
-        report["agents"]["system"]["fallback_installed"] = False
-        report["agents"]["system"]["available_for_chat"] = False
+            data = response.json()
+            entries = data.get("models", []) if isinstance(data, dict) else []
+            if not isinstance(entries, list):
+                raise ValueError("Invalid Ollama model list")
+            installed = any(isinstance(entry, dict) and entry.get("name") == STANDARD_OLLAMA_MODEL for entry in entries)
+        system["connection_status"] = "LOCAL_MODEL_AVAILABLE" if installed else "MODEL_NOT_INSTALLED"
+        system["connection_label"] = "Model 8B dostępny" if installed else "Wymagany model 8B jest niedostępny"
+        system["model_installed"] = installed
+        system["available_for_chat"] = installed
+    except (httpx.HTTPError, ValueError):
+        system["connection_status"] = "OLLAMA_UNAVAILABLE"
+        system["connection_label"] = "Ollama niedostępna"
     return report
 
 @app.get("/api/workspace/status")

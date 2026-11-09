@@ -65,7 +65,7 @@ export const Header: React.FC<HeaderProps> = ({ dataStore, onReset, onShowReport
       setSyncSuccess(true);
       setTimeout(() => setSyncSuccess(false), 3200);
     } catch (error) {
-      setActionError(error instanceof Error ? error.message : 'Synchronizacja nie powiodła się.');
+      setActionError(error instanceof Error ? error.message : 'Odświeżenie nie powiodło się.');
     } finally {
       setSyncing(false);
     }
@@ -119,18 +119,18 @@ export const Header: React.FC<HeaderProps> = ({ dataStore, onReset, onShowReport
           {/* Commander Alex Badge */}
           <div className="hidden items-center gap-1.5 bg-emerald-950/80 border border-emerald-500/50 px-2.5 py-1 rounded text-emerald-300 font-bold shadow-[0_0_10px_rgba(16,185,129,0.25)] sm:flex">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span>INFRA: DOWÓDCA ALEX</span>
+            <span>INFRA: TRYB RĘCZNY</span>
           </div>
 
           <div className="hidden xl:flex items-center gap-1.5 bg-cyan-950/70 border border-cyan-500/40 px-2 py-1 rounded text-cyan-300">
             <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
-            <span>ASTYRIA AUTO-REPAIR: ON</span>
+            <span>AUTOMATYKA: WYŁĄCZONA</span>
           </div>
 
           <div className="hidden items-center gap-1.5 bg-slate-900/80 border border-slate-700/60 px-2.5 py-1 rounded backdrop-blur md:flex">
             <Cpu className="w-3.5 h-3.5 text-cyan-400" />
-            <span className="text-slate-500">RDZEŃ:</span>
-            <span className="text-slate-200 font-medium">{dataStore.config?.neural_engine || 'SVL-Sovereign-Neural-Core-v8.0'}</span>
+            <span className="text-slate-500">MODEL STANDARDOWY:</span>
+            <span className="text-slate-200 font-medium">dolphin-llama3:8b</span>
           </div>
 
           <div className="hidden items-center gap-1.5 bg-slate-900/80 border border-slate-700/60 px-2.5 py-1 rounded backdrop-blur lg:flex">
@@ -155,7 +155,7 @@ export const Header: React.FC<HeaderProps> = ({ dataStore, onReset, onShowReport
                     ? 'bg-emerald-950/90 text-emerald-200 border border-emerald-500/70 shadow-[0_0_12px_rgba(16,185,129,0.5)]'
                     : 'bg-cyan-950/90 hover:bg-cyan-900 text-cyan-200 border border-cyan-500/60 shadow-[0_0_10px_rgba(6,182,212,0.35)]'
                 }`}
-                title="Zsynchronizuj wersję systemu, zmiany z czatu, DATA_STORE i plik monolitu na dysku"
+                title="Odczytaj aktualny stan serwera bez zapisywania plików ani zmiany modelu"
               >
                 {syncSuccess ? (
                   <Check className="w-3 h-3 text-emerald-400" />
@@ -164,10 +164,10 @@ export const Header: React.FC<HeaderProps> = ({ dataStore, onReset, onShowReport
                 )}
                 <span>
                   {syncing
-                    ? 'Synchronizacja...'
+                    ? 'Odświeżanie...'
                     : syncSuccess
-                    ? `Zsynchronizowano ${formattedVersion}!`
-                    : 'Synchronizuj'}
+                    ? 'Odświeżono'
+                    : 'Odśwież stan'}
                 </span>
               </button>
             )}

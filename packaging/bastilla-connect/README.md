@@ -15,11 +15,10 @@ Build requires internet access to install pinned-range MCP Python dependencies. 
 sudo apt install ./dist/bastilla-connect_0.1.0_$(dpkg --print-architecture).deb
 sudoedit /etc/bastilla-connect/config.env
 sudo chmod 600 /etc/bastilla-connect/config.env
-sudo systemctl enable --now bastilla-connect.timer
 sudo systemctl start bastilla-connect.service
 sudo journalctl -u bastilla-connect.service -n 50 --no-pager
 ```
-Set `BASTILLA_PUBLIC_API_URL=https://your-deployed-bastilla.example` to check the deployed API. Do not use an AI Studio editor URL. The timer runs **read-only outbound checks every five minutes**. It does not host BastillaOS, expose a port, start Ollama, or install a VM.
+Set `BASTILLA_PUBLIC_API_URL=https://your-deployed-bastilla.example` to check the deployed API. Do not use an AI Studio editor URL. Checks run only when explicitly requested. There is no periodic timer or automatic service activation. It does not host BastillaOS, expose a port, start Ollama, or install a VM.
 
 To test a separately hosted MCP server:
 ```bash
@@ -27,7 +26,7 @@ sudoedit /etc/bastilla-connect/config.env
 bastilla-connect mcp
 bastilla-connect mcp --call ollama_status
 ```
-Set `BASTILLA_REMOTE_MCP_URL=https://your-authenticated-mcp.example/mcp`. The bundled client currently supports **unauthenticated or separately network-authenticated** MCP endpoints; do not expose an unauthenticated MCP endpoint on the public internet. OAuth/token support is not implemented. Only allowlisted diagnostic tools can be invoked. The default timer only checks the API; MCP calls are manual.
+Set `BASTILLA_REMOTE_MCP_URL=https://your-authenticated-mcp.example/mcp`. The bundled client currently supports **unauthenticated or separately network-authenticated** MCP endpoints; do not expose an unauthenticated MCP endpoint on the public internet. OAuth/token support is not implemented. Only allowlisted diagnostic tools can be invoked. API checks and MCP calls are manual.
 
 ## Security and troubleshooting
 The package does not store passwords or API tokens. Config is read as data, not executed as shell. For public services, require HTTPS and server-side authorization. Check the service logs and the remote API deployment separately. A successful API check does not establish a ChatGPT connection.

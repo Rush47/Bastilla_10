@@ -367,7 +367,7 @@ export const TerminalView: React.FC<TerminalViewProps> = ({
 Dowódca infrastruktury: Alex (Ring-0 Root Control)
 Operator / Tata:        ${OPERATOR_NAME} (Tata)
 Silnik poleceń:         AKTYWNY (jawny protokół i komendy jądra)
-Samonaprawa z logów:    WŁĄCZONA (ACTIVE_MONITORING)
+Samonaprawa z logów:    WYŁĄCZONA (TRYB RĘCZNY)
 Wpisz 'help' lub 'root status', aby zobaczyć listę instrukcji jądra.
 ================================================================================`,
       timestamp: 'START'
@@ -377,7 +377,6 @@ Wpisz 'help' lub 'root status', aby zobaczyć listę instrukcji jądra.
   const DEFAULT_TERMINAL_CMDS = [
     'root status',
     'infra status',
-    'infra repair',
     'status',
     'report',
     'help'
@@ -455,8 +454,7 @@ Wpisz 'help' lub 'root status', aby zobaczyć listę instrukcji jądra.
   root patch <klucz> <wartość> - W locie modyfikuje dowolny parametr konfiguracji i jądra
   root exec <polecenie>   - Wykonuje polecenie powłoki z uprawnieniami root (np. root exec ls)
   root clear_chat         - Czyści i trwale resetuje bufor konwersacji na dysku
-  infra status            - Wyświetla status dowódcy Alexa i autonomicznej samonaprawy
-  infra repair            - Wywołuje natychmiastowy skan logów i naprawę zwiadu
+  infra status            - Odczytuje stan infrastruktury i wyłączonej automatyki
   status                  - Podstawowe wskaźniki i parametry stanu jądra
   report                  - Generuje i drukuje pełny tekstowy raport jądra (generuj_raport_tekstowy)
   sync                    - Dokonuje pełnej walidacji i synchronizacji bloku DATA_STORE

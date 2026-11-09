@@ -1,11 +1,20 @@
 # Bastilla OS 2
 
-Canonical repository: `mmitek515-netizen/Bastilla_OS_2`. Product name: **Bastilla OS 2**.
+Canonical repository: `Rush47/Bastilla_10`. Product name: **Bastilla OS 2**.
 Package identifier: `bastilla-os-2`. Preserve existing API paths, app IDs and Debian
 package names until their consumers are migrated together.
 
 Read `docs/MISSION_BASTILLA_OS_2.md` and `docs/DEVELOPMENT.md` before changes.
 Profiles in `.github/agents/` describe roles; they do not prove running workers.
+
+## Runtime policy (owner instruction, 2026-11-09)
+
+Use only Ollama `dolphin-llama3:8b` as the application chat model. The repository
+policy overrides stale model/provider environment settings. Do not reintroduce
+installers, model downloads, auto-updates, auto-repair, automatic Git writes,
+background deployment, or execution of model-generated commands. Existing model
+weights and user data are not cleanup targets. AI Studio source sync is separate
+from restarting its backend and from Ollama model availability; verify both.
 
 ## Ownership and parallel work
 

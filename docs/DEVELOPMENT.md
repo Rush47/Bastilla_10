@@ -7,10 +7,16 @@ Configure model credentials through deployment secrets or a local `.env` based o
 `.env.example`. No model is included; unavailable providers must be reported honestly.
 Keep the Codespaces port private: the recovered backend still requires a full access-control audit.
 
-`npm run verify` runs four independent checks concurrently. GitHub Actions caches npm
-downloads and cancels obsolete runs on the same branch. Automatic Git synchronization
-uses the same command before committing. It cannot resolve competing agent edits;
-use one writer per file and separate worktrees.
+`npm run verify` runs independent test, TypeScript and build checks concurrently.
+Run it explicitly; the app never commits or pushes files in the background.
+
+The only chat model is `dolphin-llama3:8b`, pinned in `src/kernel/modelPolicy.ts`.
+`OLLAMA_BASE_URL` selects the existing Ollama host, not a different model. Old
+`OLLAMA_MODEL`, provider and API-key settings cannot override the policy.
+No model is installed or preloaded by startup. Missing 8B is an explicit error.
+Source sync into AI Studio does not transfer weights or restart an existing Node
+process. Restart the preview/backend manually and check `policyVersion`,
+`configuredModel`, `standardAvailable` and `activeModels` on `/api/ai/status`.
 
 ## Priority queue
 

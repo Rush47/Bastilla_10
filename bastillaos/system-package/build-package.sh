@@ -46,10 +46,7 @@ mkdir -p "$RUNTIME" "$DEFAULTS" "$DEBIAN" "$ROOT/usr/libexec/bastillaos" \
 chmod 0755 "$DEBIAN"
 
 cp "$PACKAGE_DIR/debian/control" "$DEBIAN/control"
-cp "$PACKAGE_DIR/debian/postinst" "$DEBIAN/postinst"
-cp "$PACKAGE_DIR/debian/prerm" "$DEBIAN/prerm"
-cp "$PACKAGE_DIR/debian/postrm" "$DEBIAN/postrm"
-chmod 0755 "$DEBIAN/postinst" "$DEBIAN/prerm" "$DEBIAN/postrm"
+# No maintainer scripts: installation/upgrades never enable, start or restart services.
 cp "$PACKAGE_DIR/systemd/bastillaos-system.service" \
   "$ROOT/usr/lib/systemd/system/bastillaos-system.service"
 cp "$PACKAGE_DIR/libexec/system-service" "$ROOT/usr/libexec/bastillaos/system-service"

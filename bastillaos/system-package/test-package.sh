@@ -103,7 +103,13 @@ awk '
 ! grep -q '^ProtectHome=true$' "$SERVICE"
 ! grep -q '^ProtectSystem=strict$' "$SERVICE"
 ! grep -q '^ReadWritePaths=' "$SERVICE"
-grep -q 'restart bastillaos-system.service' "$PACKAGE_DIR/debian/postinst"
+mkdir -p "$WORK_DIR/control"
+dpkg-deb --control "$DEB" "$WORK_DIR/control"
+for hook in preinst postinst prerm postrm; do
+  [ ! -e "$WORK_DIR/control/$hook" ] || {
+    echo "test-package: unexpected automatic package hook $hook" >&2; exit 1;
+  }
+done
 grep -q '^After=.*network-online.target.*NetworkManager-wait-online.service' "$SERVICE"
 grep -q '^Restart=on-failure$' "$SERVICE"
 test -x "$ROOT/usr/libexec/bastillaos/system-service"

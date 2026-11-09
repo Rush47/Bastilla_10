@@ -33,3 +33,5 @@ and not writable by the desktop user.
 Executable code and the generated frontend live under
 `/usr/lib/bastillaos/system`. No desktop launcher is included; KDE launcher
 integration belongs to the separate branding package.
+
+Package installation and upgrades do not enable, start, stop or restart a service. The package contains no maintainer hooks. Start an existing service explicitly when needed; restart it explicitly after updating the runtime. The wallpaper first-login autostart hook has also been removed.
