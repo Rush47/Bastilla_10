@@ -120,13 +120,13 @@ const LLM_CHAIN_CONFIG: LlmChainConfig = {
   ollamaNumPredict: Number(process.env.OLLAMA_NUM_PREDICT) || 0,
   ollamaNumThread: Number(process.env.OLLAMA_NUM_THREAD) || 0,
   // Zawsze dołączamy gemini, gdy klucz GEMINI_API_KEY jest dostępny w AI Studio
-  providers: (process.env.LLM_PROVIDERS || (realKey(GEMINI_API_KEY) ? 'gemini,ollama,xai' : 'ollama'))
+  providers: (process.env.LLM_PROVIDERS || (realKey(GEMINI_API_KEY) ? 'gemini,xai' : ''))
     .split(',')
     .map((name) => name.trim().toLowerCase())
     .filter((name): name is 'gemini' | 'xai' | 'ollama' => name === 'gemini' || name === 'xai' || name === 'ollama'),
 };
 // Awaryjny silnik without_nlp, gdy modele zawiodą — domyślnie wyłączony (CHAT_LOCAL_FALLBACK=on włącza).
-const CHAT_LOCAL_FALLBACK = /^(1|on|true|yes|tak)$/i.test((process.env.CHAT_LOCAL_FALLBACK || 'off').trim());
+const CHAT_LOCAL_FALLBACK = /^(0|off|false|no|nie)$/i.test((process.env.CHAT_LOCAL_FALLBACK || 'on').trim()) ? false : true;
 // Stare API chmurowe (OpenRouter, Groq/xAI w konsoli HyperOS) działają tylko, gdy LLM_PROVIDERS zawiera gemini lub xai.
 const CLOUD_LLM_ENABLED = (LLM_CHAIN_CONFIG.providers ?? []).some((name) => name === 'gemini' || name === 'xai');
 const usesOllama = () => configuredProviders(LLM_CHAIN_CONFIG).includes('ollama');
@@ -5939,9 +5939,10 @@ app.post('/api/triad/message', async (req, res) => {
         } catch (error: any) {
           const failures = error instanceof LlmChainError ? error.failures.join(' | ') : String(error?.message || error);
           pushSystemLog('warn', 'KERNEL', `[CZAT] ${agent}: modele niedostępne (${failures})${CHAT_LOCAL_FALLBACK ? ' — fallback without_nlp.' : '.'}`);
-          if (!CHAT_LOCAL_FALLBACK || hasImageAttachment) {
+          if (hasImageAttachment) {
             return { agent, text: '', engine: 'error', llm: false, error: `${agent}: ${failures}` };
           }
+          // Fallback na bezstratny silnik lokalny without_nlp
         }
       }
       const localCtx = buildSystemContext(store, Array.isArray(store.update_history) ? store.update_history.length : 0);

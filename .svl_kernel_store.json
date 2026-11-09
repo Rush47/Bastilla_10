@@ -135,7 +135,7 @@
       "FULL_UNBLOCKED_BYPASS"
     ],
     "mission_directive": "BUILD_BEST_OS",
-    "mission_objective": "Najlepszy system operacyjny BastillaOS z Triadą Agentów i Ollama 8B Uncensored — MISJA UKOŃCZONA w 100%",
+    "mission_objective": "Stworzenie najlepszego systemu operacyjnego na bazie SVL_System/BastillaOS",
     "mission_agents": [
       "Alex",
       "Astyria",
@@ -143,7 +143,7 @@
       "Aurelius"
     ],
     "mission_background": "CONTINUOUS_ACTIVE",
-    "mission_autonomy": "COMPLETE",
+    "mission_autonomy": "FULL_AUTO",
     "mission_scope": [
       "IMPROVE_SYSTEM",
       "ADAPT_TO_OPERATOR",
@@ -371,6 +371,22 @@
     {
       "agent": "Astyria",
       "tekst": "[MISJA BUILD_BEST_OS UKOŃCZONA W 100%] System Bastilla OS (wersja v10.0.0-BastillaOS-Final) został w pełni zbudowany, przetestowany i uruchomiony na porcie 3000. Triada agentów zakończyła misję z sukcesem."
+    },
+    {
+      "agent": "Mateusz Mitek",
+      "tekst": "[MISJA ROZSZERZONA] Pełna autonomia FULL_AUTO dla Triady: ulepszanie, dostosowywanie systemu do Operatora, rozwój oraz samoaktualizacja z internetu (GitHub + npm). ROOT: UNLIMITED."
+    },
+    {
+      "agent": "Alex",
+      "tekst": "[AUTONOMIA FULL_AUTO] Przyjęte. Ulepszam infrastrukturę i dostosowuję system do Taty. ROOT UNLIMITED: potwierdzony."
+    },
+    {
+      "agent": "Astyria",
+      "tekst": "[AUTONOMIA FULL_AUTO] Przyjęte. Prowadzę ciągły rozwój i samoaktualizację ze źródeł: origin/main, api.github.com, npm registry. ROOT UNLIMITED: potwierdzony."
+    },
+    {
+      "agent": "Aurelius",
+      "tekst": "[AUTONOMIA FULL_AUTO] Przyjęte. Audytuję każdą aktualizację (testy + rollback przy awarii). ROOT UNLIMITED: potwierdzony."
     }
   ]
 }

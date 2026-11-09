@@ -173,48 +173,53 @@ export const AgentCommsView: React.FC<AgentCommsViewProps> = ({
       </div>
       {/* Left/Main Column: Chat Stream */}
       <div className={`${mobileSection === 'chat' ? 'flex' : 'hidden'} min-h-0 min-w-0 flex-1 flex-col overflow-hidden border-r border-slate-800/80 bg-slate-950/70 backdrop-blur-md lg:flex`}>
-        {/* Futuristic Channel Bar */}
-        <div className="bg-slate-900/80 backdrop-blur-md border-b border-cyan-500/20 px-2 sm:px-4 py-2 flex flex-wrap items-center justify-between gap-2 shadow-sm shrink-0">
-          <div className="flex min-w-0 max-w-full items-center gap-1.5 sm:gap-2.5 flex-wrap">
-            <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px] shrink-0">WĘZEŁ:</span>
-            <select
-              aria-label="Cel transmisji"
-              value={selectedTarget}
-              onChange={(event) => setSelectedTarget(event.target.value as typeof selectedTarget)}
-              disabled={isLoading}
-              className="min-w-0 max-w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs font-semibold text-slate-200 outline-none transition focus:border-cyan-500 disabled:opacity-50"
-            >
-              <option value="triad">Triada · Alex, Astyria, Aria, Aurelius</option>
-              <option value="Alex">Alex</option>
-              <option value="Astyria">Astyria</option>
-              <option value="Aurelius">Aurelius</option>
-              <option value="si_1">Aria</option>
-            </select>
+        {/* Modern Channel & Action Bar */}
+        <div className="bg-slate-900/90 backdrop-blur-xl border-b border-cyan-500/20 px-3 sm:px-5 py-2.5 flex flex-wrap items-center justify-between gap-2 shadow-md shrink-0">
+          <div className="flex min-w-0 max-w-full items-center gap-2 sm:gap-3 flex-wrap">
+            <span className="text-slate-400 font-bold uppercase tracking-wider text-[10px] shrink-0 font-sans">WĘZEŁ:</span>
+            <div className="relative flex items-center">
+              <select
+                aria-label="Cel transmisji"
+                value={selectedTarget}
+                onChange={(event) => setSelectedTarget(event.target.value as typeof selectedTarget)}
+                disabled={isLoading}
+                className="min-w-0 max-w-full appearance-none rounded-xl border border-slate-700/80 bg-slate-950/90 pl-3.5 pr-8 py-1.5 font-sans text-xs font-semibold text-cyan-200 outline-none transition-all hover:border-cyan-500/50 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-500/20 disabled:opacity-50 cursor-pointer shadow-inner"
+              >
+                <option value="triad">Triada · Alex, Astyria, Aria, Aurelius</option>
+                <option value="Alex">Alex · Dowódca Infrastruktury</option>
+                <option value="Astyria">Astyria · Inżynier Systemowy</option>
+                <option value="Aurelius">Aurelius · Audytor Bezpieczeństwa</option>
+                <option value="si_1">Aria · Model Routing</option>
+              </select>
+              <div className="pointer-events-none absolute right-2.5 text-slate-400 text-xs">▾</div>
+            </div>
           </div>
 
-          <div className="flex items-center gap-1.5 sm:gap-2 text-slate-400 text-[11px] flex-wrap">
-            <span className="hidden sm:inline-flex items-center gap-1.5 font-mono text-[10px] text-emerald-400 bg-emerald-950/80 border border-emerald-500/40 px-2.5 py-0.5 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.2)]">
-              <Sigma className="w-3 h-3 text-emerald-400" />
+          <div className="flex items-center gap-2 text-slate-400 text-xs flex-wrap">
+            <span className="hidden sm:inline-flex items-center gap-1.5 font-sans text-[11px] font-semibold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-3 py-1 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.15)]">
+              <Sigma className="w-3.5 h-3.5 text-emerald-400" />
               WITHOUT_NLP: OK
             </span>
-            <span className="text-[10px] text-slate-500 font-mono">
-              PAKIETY: <strong className="text-slate-300">{dataStore.chat_history.length}</strong>
+            <span className="text-xs text-slate-400 font-sans px-1">
+              PAKIETY: <strong className="text-slate-200 font-mono font-bold">{dataStore.chat_history.length}</strong>
             </span>
             {onTriggerInitiative && (
               <button
+                type="button"
                 onClick={onTriggerInitiative}
                 disabled={isLoading}
-                className="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-purple-950/80 hover:bg-purple-900 border border-purple-600/60 text-purple-200 rounded-lg cursor-pointer transition flex items-center gap-1 disabled:opacity-40 shadow-[0_0_8px_rgba(168,85,247,0.25)] text-[10px] sm:text-xs"
+                className="px-3 py-1.5 bg-purple-950/80 hover:bg-purple-900 border border-purple-500/40 text-purple-200 rounded-xl cursor-pointer transition-all duration-200 flex items-center gap-1.5 disabled:opacity-40 shadow-[0_0_12px_rgba(168,85,247,0.2)] hover:shadow-[0_0_16px_rgba(168,85,247,0.35)] text-xs font-sans font-semibold active:scale-95"
                 title="Wymuś autonomiczne pytanie lub inicjatywę od agenta z Triady"
               >
-                <Sparkles className="w-3 h-3 text-purple-300" />
-                <span className="hidden xs:inline">Inicjatywa</span>
+                <Sparkles className="w-3.5 h-3.5 text-purple-300" />
+                <span>Inicjatywa</span>
               </button>
             )}
             {onUnclog && (
               <button
+                type="button"
                 onClick={onUnclog}
-                className="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-amber-950/80 hover:bg-amber-900 border border-amber-600/60 text-amber-200 rounded-lg cursor-pointer transition font-bold text-[10px] sm:text-xs"
+                className="px-3 py-1.5 bg-amber-950/80 hover:bg-amber-900 border border-amber-500/40 text-amber-200 rounded-xl cursor-pointer transition-all duration-200 font-sans font-semibold text-xs active:scale-95 shadow-[0_0_10px_rgba(245,158,11,0.2)]"
                 title="Odblokuj system i zsynchronizuj stan"
               >
                 Odblokuj
@@ -222,20 +227,22 @@ export const AgentCommsView: React.FC<AgentCommsViewProps> = ({
             )}
             {onRestoreBackup && (
               <button
+                type="button"
                 onClick={onRestoreBackup}
-                className="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-purple-950/80 hover:bg-purple-900 border border-purple-700/60 text-purple-200 rounded-lg cursor-pointer transition font-bold text-[10px] sm:text-xs"
+                className="px-3 py-1.5 bg-purple-950/80 hover:bg-purple-900 border border-purple-500/40 text-purple-200 rounded-xl cursor-pointer transition-all duration-200 font-sans font-semibold text-xs active:scale-95 shadow-[0_0_10px_rgba(168,85,247,0.2)]"
                 title="Wdróż backup z pierwszej wersji (v1.0.0-Legacy)"
               >
                 Backup
               </button>
             )}
             <button
+              type="button"
               onClick={onClearHistory}
-              className="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-rose-950/80 hover:bg-rose-900 border border-rose-600/60 text-rose-200 rounded-lg cursor-pointer transition font-bold text-[10px] flex items-center gap-1 shadow-[0_0_8px_rgba(244,63,94,0.3)]"
+              className="px-3 py-1.5 bg-rose-950/80 hover:bg-rose-900 border border-rose-500/40 text-rose-200 rounded-xl cursor-pointer transition-all duration-200 font-sans font-semibold text-xs flex items-center gap-1.5 shadow-[0_0_10px_rgba(244,63,94,0.25)] active:scale-95"
               title="Wyczyść historię i zresetuj pętlę rozmowy"
             >
-              <RefreshCw className="w-3 h-3 text-rose-300" />
-              <span className="hidden xs:inline">Reset</span>
+              <RefreshCw className="w-3.5 h-3.5 text-rose-300" />
+              <span>Reset</span>
             </button>
           </div>
         </div>
@@ -443,74 +450,123 @@ export const AgentCommsView: React.FC<AgentCommsViewProps> = ({
 
         </div>
 
-        <form onSubmit={handleSendMessage} className="relative w-full shrink-0 border-t border-cyan-500/20 bg-slate-950/90 p-2 backdrop-blur-md sm:p-2.5">
-          <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
+        {/* Modernized Floating Chat Input Container */}
+        <form onSubmit={handleSendMessage} className="relative w-full shrink-0 p-3 sm:p-4 bg-slate-950/95 border-t border-slate-800/80 backdrop-blur-2xl">
+          <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-500/40 to-transparent" />
+
+          {/* Attached files preview */}
           {chatAttachments.length > 0 && (
-            <ul aria-label="Załączone pliki" className="mb-2 flex flex-wrap gap-1.5">
+            <ul aria-label="Załączone pliki" className="mb-2.5 flex flex-wrap gap-2">
               {chatAttachments.map((file, index) => (
-                <li key={`${file.name}-${index}`} className="flex items-center gap-1 rounded border border-cyan-500/30 bg-cyan-950/40 px-2 py-1 text-[10px] text-cyan-100">
-                  <FileText className="h-3 w-3" />
-                  <span>{file.name}</span>
+                <li key={`${file.name}-${index}`} className="flex items-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-950/70 px-3 py-1.5 text-xs font-sans text-cyan-100 backdrop-blur-md shadow-md">
+                  <FileText className="h-3.5 w-3.5 text-cyan-400 shrink-0" />
+                  <span className="font-medium truncate max-w-[180px]">{file.name}</span>
                   <button
                     type="button"
                     onClick={() => setChatAttachments((current) => current.filter((_, fileIndex) => fileIndex !== index))}
                     aria-label={`Usuń załącznik ${file.name}`}
-                    className="text-slate-400 hover:text-white"
-                  ><X className="h-3 w-3" /></button>
+                    className="ml-1 text-slate-400 hover:text-rose-300 transition p-0.5 rounded-full hover:bg-rose-950/50"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
                 </li>
               ))}
             </ul>
           )}
-          {attachmentError && <p role="alert" className="mb-2 text-[10px] text-rose-300">{attachmentError}</p>}
-          <div className="flex items-center gap-1.5 sm:gap-2">
-          <div className="relative flex min-w-0 flex-1 items-center">
-            <textarea
-              id="triad-chat-message"
-              aria-label="Wiadomość do czatu without_nlp"
-              value={messageText}
-              onChange={(event) => setMessageText(event.target.value)}
-              maxLength={20_500}
-              rows={2}
-              disabled={isLoading}
-              placeholder="Wiadomość do agentów…"
-              className="w-full resize-y rounded-lg border border-slate-700/70 bg-slate-900/90 px-3 py-2.5 pr-8 font-mono text-xs text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50 disabled:opacity-50 sm:rounded-xl sm:px-4"
-            />
-            {messageText && !isLoading && (
-              <button
-                type="button"
-                onClick={() => setMessageText('')}
-                className="absolute right-2 p-1 text-xs text-slate-500 hover:text-slate-300 sm:right-3"
-                title="Wyczyść tekst"
-                aria-label="Wyczyść tekst"
-              >
-                ×
-              </button>
-            )}
+
+          {attachmentError && (
+            <p role="alert" className="mb-2 text-xs font-sans font-semibold text-rose-300 bg-rose-950/50 border border-rose-500/30 px-3 py-1.5 rounded-xl">
+              {attachmentError}
+            </p>
+          )}
+
+          {/* Modern Combined Input Card */}
+          <div className="group relative flex flex-col w-full rounded-2xl border border-slate-700/70 bg-slate-900/90 shadow-[0_8px_32px_rgba(0,0,0,0.5)] focus-within:border-cyan-500/80 focus-within:ring-2 focus-within:ring-cyan-500/20 focus-within:shadow-[0_0_25px_rgba(6,182,212,0.18)] transition-all duration-300 p-2 sm:p-2.5">
+            {/* Textarea Area */}
+            <div className="relative flex w-full items-center">
+              <textarea
+                id="triad-chat-message"
+                aria-label="Wiadomość do czatu without_nlp"
+                value={messageText}
+                onChange={(event) => setMessageText(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' && !event.shiftKey) {
+                    event.preventDefault();
+                    if ((messageText.trim() || chatAttachments.length > 0) && !isLoading) {
+                      void handleSendMessage(event as any);
+                    }
+                  }
+                }}
+                maxLength={20_500}
+                rows={2}
+                disabled={isLoading}
+                placeholder="Wpisz wiadomość do agentów AI... (naciśnij Enter, aby wysłać)"
+                className="w-full resize-none bg-transparent px-2.5 py-1.5 font-sans text-xs sm:text-sm text-slate-100 outline-none placeholder:text-slate-500 placeholder:font-normal leading-relaxed disabled:opacity-50"
+              />
+              {messageText && !isLoading && (
+                <button
+                  type="button"
+                  onClick={() => setMessageText('')}
+                  className="absolute right-2 top-2 h-6 w-6 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-slate-100 flex items-center justify-center transition-all duration-150"
+                  title="Wyczyść tekst"
+                  aria-label="Wyczyść tekst"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Bottom Actions Row inside the input card */}
+            <div className="flex items-center justify-between gap-2 pt-2 mt-1 border-t border-slate-800/60 px-1">
+              <div className="flex items-center gap-2">
+                {/* Paperclip attachment button */}
+                <label
+                  className={`flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-slate-700/80 bg-slate-800/60 text-slate-300 hover:text-cyan-300 hover:border-cyan-500/50 hover:bg-slate-800 transition-all duration-200 shadow-sm active:scale-95 ${
+                    isLoading || chatAttachments.length >= MAX_CHAT_ATTACHMENTS ? 'pointer-events-none opacity-40' : ''
+                  }`}
+                  title="Dołącz pliki (DOCX, PDF, JPG, TXT)"
+                >
+                  <Paperclip className="h-4 w-4" />
+                  <input
+                    type="file"
+                    accept={CHAT_ATTACHMENT_ACCEPT}
+                    multiple
+                    disabled={isLoading || chatAttachments.length >= MAX_CHAT_ATTACHMENTS}
+                    onChange={(event) => void handleAttachmentSelection(event)}
+                    className="sr-only"
+                    aria-label="Dołącz pliki tekstowe, DOCX, PDF lub JPG"
+                  />
+                </label>
+
+                {chatAttachments.length > 0 && (
+                  <span className="text-[11px] font-sans font-medium text-cyan-300 bg-cyan-950/60 px-2.5 py-1 rounded-lg border border-cyan-500/30">
+                    {chatAttachments.length} / {MAX_CHAT_ATTACHMENTS} plików
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="hidden sm:inline-block text-[10px] text-slate-500 font-sans">
+                  {messageText.length} / 20500
+                </span>
+
+                {/* Send Button */}
+                <button
+                  type="submit"
+                  aria-label={`Wyślij wiadomość do ${{ triad: 'Triady', si_1: 'Arii', Alex: 'Alexa', Astyria: 'Astyrii', Aurelius: 'Aureliusa' }[selectedTarget]}`}
+                  disabled={(!messageText.trim() && chatAttachments.length === 0) || isLoading}
+                  className="flex shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-500 via-teal-400 to-blue-500 hover:from-cyan-400 hover:to-blue-400 px-4 py-2 font-sans text-xs font-bold text-slate-950 shadow-[0_0_16px_rgba(6,182,212,0.35)] hover:shadow-[0_0_22px_rgba(6,182,212,0.5)] active:scale-95 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
+                >
+                  <span>WYSŁIJ</span>
+                  <Send className="h-3.5 w-3.5 shrink-0" />
+                </button>
+              </div>
+            </div>
           </div>
-          <label className={`flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-slate-700 text-cyan-200 hover:border-cyan-400 ${isLoading || chatAttachments.length >= MAX_CHAT_ATTACHMENTS ? 'pointer-events-none opacity-40' : ''}`} title="Dołącz tekst, DOCX, PDF lub JPG (maks. 10 plików; tekst 5 MB/plik, DOCX 20 MB, PDF/JPG 20 MB/plik)">
-            <Paperclip className="h-4 w-4" />
-            <input
-              type="file"
-              accept={CHAT_ATTACHMENT_ACCEPT}
-              multiple
-              disabled={isLoading || chatAttachments.length >= MAX_CHAT_ATTACHMENTS}
-              onChange={(event) => void handleAttachmentSelection(event)}
-              className="sr-only"
-              aria-label="Dołącz pliki tekstowe, DOCX, PDF lub JPG"
-            />
-          </label>
-          <button
-            type="submit"
-            aria-label={`Wyślij wiadomość do ${{ triad: 'Triady', si_1: 'Arii', Alex: 'Alexa', Astyria: 'Astyrii', Aurelius: 'Aureliusa' }[selectedTarget]}`}
-            disabled={(!messageText.trim() && chatAttachments.length === 0) || isLoading}
-            className="flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 px-2.5 py-2.5 font-mono text-xs font-bold text-slate-950 shadow-[0_0_12px_rgba(16,185,129,0.3)] transition hover:from-emerald-400 hover:to-cyan-400 disabled:cursor-not-allowed disabled:opacity-40 sm:rounded-xl sm:px-3"
-          >
-            <Send className="h-3.5 w-3.5 shrink-0" />
-            <span className="hidden text-[11px] sm:inline">TRANSMISJA</span>
-          </button>
-          </div>
-          <p className="mt-1 px-1 text-[9px] text-slate-500">
-            Maks. 10 plików; tekst 5 MB/plik i 20 MB łącznie, DOCX 20 MB (10 MB po rozpakowaniu), PDF/JPG 20 MB/plik i 40 MB łącznie.
+
+          <p className="mt-2 px-1 text-[10px] font-sans text-slate-400/80 flex items-center justify-between">
+            <span>Maks. 10 plików · tekst 5 MB/plik · DOCX/PDF/JPG 20 MB/plik</span>
+            <span className="hidden sm:inline">Shift+Enter dla nowej linii</span>
           </p>
         </form>
 
