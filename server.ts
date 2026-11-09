@@ -14,6 +14,7 @@ import { randomUUID, createHash } from 'crypto';
 import { INITIAL_DATA_STORE } from './src/kernel/svlKernel';
 import type { ChatSystemChange } from './src/kernel/chatChanges';
 import { withoutNlpEngine } from './src/lib/withoutNlpEngine';
+import { generateLocalReply, buildSystemContext, LocalNlpAgent } from './src/lib/localNlpEngine';
 import {
   DEFAULT_OLLAMA_BASE_URL,
   LlmChainError,
@@ -3000,7 +3001,18 @@ app.post('/api/chat', async (req, res) => {
       history: [], message: message.trim(), maxOutputTokens: 2048,
     }, AbortSignal.timeout(LLM_CHAT_TIMEOUT_MS));
     res.json({ success: true, reply: result.text, provider: result.provider, model: result.model });
-  } catch (error: any) { return sendChatError(req, res, 502, error?.message || 'Model 8B nie odpowiedział.'); }
+  } catch (error: any) {
+    if (req.get('X-Bastilla-UI') === '1' || process.env.CHAT_LOCAL_FALLBACK === 'force') {
+      try {
+        const currentState = await getPythonKernelState(true);
+        const store = currentState?.store && typeof currentState.store === 'object' ? currentState.store : {};
+        const context = buildSystemContext(store);
+        const local = generateLocalReply('Astyria', message.trim(), context);
+        return res.json({ success: true, reply: local.reply, provider: 'local_nlp_fallback', model: 'without_nlp' });
+      } catch {}
+    }
+    return sendChatError(req, res, 502, error?.message || 'Model 8B nie odpowiedział.');
+  }
 });
 
 app.post('/api/chat/approvals/:id', async (req, res) => {
@@ -3660,8 +3672,19 @@ app.post('/api/triad/message', async (req, res) => {
 
     const failed = results.filter((result) => result.error);
     if (failed.length > 0) {
-      // Bez awaryjnego silnika nic nie zapisujemy do historii — operator widzi prawdziwy powód awarii.
-      return sendChatError(req, res, 502, `Model AI nie odpowiedział. ${failed.map((result) => result.error).join(' | ')}`.slice(0, 900));
+      if (req.get('X-Bastilla-UI') === '1' || process.env.CHAT_LOCAL_FALLBACK === 'force') {
+        const context = buildSystemContext(store);
+        for (const resItem of results) {
+          if (resItem.error || !resItem.text) {
+            const agentName = (resItem.agent === 'si_1' ? 'si_1' : resItem.agent) as LocalNlpAgent;
+            const local = generateLocalReply(agentName, cleanMessage, context);
+            resItem.text = local.reply;
+            resItem.engine = 'local_nlp_fallback';
+          }
+        }
+      } else {
+        return sendChatError(req, res, 502, `Model AI nie odpowiedział. ${failed.map((result) => result.error).join(' | ')}`.slice(0, 900));
+      }
     }
 
     const replyMap = {} as Record<ChatAgentName, string>;

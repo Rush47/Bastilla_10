@@ -387,6 +387,26 @@
     {
       "agent": "Aurelius",
       "tekst": "[AUTONOMIA FULL_AUTO] Przyjęte. Audytuję każdą aktualizację (testy + rollback przy awarii). ROOT UNLIMITED: potwierdzony."
+    },
+    {
+      "agent": "Mateusz Mitek",
+      "tekst": "Cześć agenci! Jak idzie misja?"
+    },
+    {
+      "agent": "Alex",
+      "tekst": "Cześć Tata! Alex na stanowisku. Infrastruktura działa w trybie MANUAL_OLLAMA_ONLY, wersja 10.0.0-BastillaOS-Final. Co budujemy?"
+    },
+    {
+      "agent": "Astyria",
+      "tekst": "Witaj, Tata! Astyria w gotowości. Ciągły rozwój systemu v10.0.0-BastillaOS-Final trwa — samoleczenie i optymalizacja aktywne."
+    },
+    {
+      "agent": "si_1",
+      "tekst": "Witaj, Tata! Aria na kanale. Synchronizacja stanu aplikacji z DATA_STORE: AKTYWNA. Wersja 10.0.0-BastillaOS-Final."
+    },
+    {
+      "agent": "Aurelius",
+      "tekst": "Cześć, Tata. Aurelius na warcie. Integralność danych i audyt bezpieczeństwa: zgodne. Wersja 10.0.0-BastillaOS-Final."
     }
   ]
 }

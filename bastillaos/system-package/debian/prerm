@@ -1,0 +1,13 @@
+#!/bin/sh
+set -eu
+
+case "${1:-}" in
+  remove)
+    if command -v deb-systemd-invoke >/dev/null 2>&1; then
+      deb-systemd-invoke stop bastillaos-system.service || true
+    fi
+    ;;
+esac
+
+#DEBHELPER#
+exit 0

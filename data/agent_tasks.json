@@ -559,7 +559,7 @@
     "agent": "Alex",
     "title": "Zapis pliku w nowej aplikacji",
     "description": "Weryfikacja automatycznego tworzenia aplikacji przy zapisie pliku",
-    "status": "completed",
+    "status": "failed",
     "createdAt": "2026-11-09T14:23:08.171Z",
     "logs": [
       "[2026-11-09T14:23:08.171Z] Zadanie zarejestrowane w kolejce.",
@@ -577,14 +577,15 @@
       "sizeBytes": 11
     },
     "result": "Plik test.json w aplikacji test-auto-app-1794234188171 zapisany (11 B).",
-    "completedAt": "2026-11-09T14:23:08.175Z"
+    "completedAt": "2026-11-09T14:23:08.175Z",
+    "error": "Brak pliku artefaktu na dysku: apps/test-auto-app-1794234188171/test.json"
   },
   {
     "id": "task-1794234188280-8cqht",
     "agent": "Aria",
     "title": "Raport testowy AI",
     "description": "Przygotuj krótki raport.",
-    "status": "completed",
+    "status": "failed",
     "createdAt": "2026-11-09T14:23:08.280Z",
     "logs": [
       "[2026-11-09T14:23:08.280Z] Zadanie zarejestrowane w kolejce.",
@@ -600,7 +601,8 @@
       "sizeBytes": 103
     },
     "result": "Wynik wygenerowany przez model.",
-    "completedAt": "2026-11-09T14:23:08.296Z"
+    "completedAt": "2026-11-09T14:23:08.296Z",
+    "error": "Brak pliku artefaktu na dysku: exports/agent_tasks/task-1794234188280-8cqht.md"
   },
   {
     "id": "task-1794234188352-5d9wy",
@@ -617,5 +619,537 @@
     "startedAt": "2026-11-09T14:23:08.353Z",
     "error": "Nieobsługiwany typ akcji: unsupported_action",
     "completedAt": "2026-11-09T14:23:08.353Z"
+  },
+  {
+    "id": "task-1794237960134-odn27",
+    "agent": "Astyria",
+    "title": "Test audytu integralności",
+    "description": "Testowanie silnika zadań agentów",
+    "status": "completed",
+    "createdAt": "2026-11-09T15:26:00.134Z",
+    "logs": [
+      "[2026-11-09T15:26:00.134Z] Zadanie zarejestrowane w kolejce.",
+      "[2026-11-09T15:26:00.137Z] Rozpoczęto wykonywanie zadania przez agenta Astyria.",
+      "[2026-11-09T15:26:00.137Z] Skanowanie spójności plików jądra i konfiguracji...",
+      "[2026-11-09T15:26:00.739Z] Zapisano raport integralności: /app/applet/exports/system_integrity_report.json",
+      "[2026-11-09T15:26:00.740Z] Zadanie zakończone sukcesem. Artefakt potwierdzony: exports/system_integrity_report.json"
+    ],
+    "startedAt": "2026-11-09T15:26:00.137Z",
+    "artifact": {
+      "path": "exports/system_integrity_report.json",
+      "name": "system_integrity_report.json",
+      "sizeBytes": 236
+    },
+    "result": "Raport integralności wygenerowany pomyślnie (236 B).",
+    "completedAt": "2026-11-09T15:26:00.740Z"
+  },
+  {
+    "id": "task-1794237960746-kcvnz",
+    "agent": "Alex",
+    "title": "Zapis pliku w nowej aplikacji",
+    "description": "Weryfikacja automatycznego tworzenia aplikacji przy zapisie pliku",
+    "status": "failed",
+    "createdAt": "2026-11-09T15:26:00.746Z",
+    "logs": [
+      "[2026-11-09T15:26:00.746Z] Zadanie zarejestrowane w kolejce.",
+      "[2026-11-09T15:26:00.747Z] Rozpoczęto wykonywanie zadania przez agenta Alex.",
+      "[2026-11-09T15:26:00.747Z] Zapisywanie pliku test.json do apps/test-auto-app-1794237960746...",
+      "[2026-11-09T15:26:00.748Z] Utworzono brakujący katalog aplikacji apps/test-auto-app-1794237960746.",
+      "[2026-11-09T15:26:00.749Z] Zapisano plik apps/test-auto-app-1794237960746/test.json.",
+      "[2026-11-09T15:26:00.753Z] Utworzono manifest app.json dla apps/test-auto-app-1794237960746.",
+      "[2026-11-09T15:26:00.754Z] Zadanie zakończone sukcesem. Artefakt potwierdzony: apps/test-auto-app-1794237960746/test.json"
+    ],
+    "startedAt": "2026-11-09T15:26:00.747Z",
+    "artifact": {
+      "path": "apps/test-auto-app-1794237960746/test.json",
+      "name": "test.json",
+      "sizeBytes": 11
+    },
+    "result": "Plik test.json w aplikacji test-auto-app-1794237960746 zapisany (11 B).",
+    "completedAt": "2026-11-09T15:26:00.754Z",
+    "error": "Brak pliku artefaktu na dysku: apps/test-auto-app-1794237960746/test.json"
+  },
+  {
+    "id": "task-1794237960862-3lhli",
+    "agent": "Aria",
+    "title": "Raport testowy AI",
+    "description": "Przygotuj krótki raport.",
+    "status": "failed",
+    "createdAt": "2026-11-09T15:26:00.862Z",
+    "logs": [
+      "[2026-11-09T15:26:00.862Z] Zadanie zarejestrowane w kolejce.",
+      "[2026-11-09T15:26:00.862Z] Rozpoczęto wykonywanie zadania przez agenta Aria.",
+      "[2026-11-09T15:26:00.863Z] Wysyłanie zadania do skonfigurowanego modelu AI...",
+      "[2026-11-09T15:26:00.864Z] Model test-provider (test-model) przygotował odpowiedź.",
+      "[2026-11-09T15:26:00.864Z] Zadanie zakończone sukcesem. Artefakt potwierdzony: exports/agent_tasks/task-1794237960862-3lhli.md"
+    ],
+    "startedAt": "2026-11-09T15:26:00.862Z",
+    "artifact": {
+      "path": "exports/agent_tasks/task-1794237960862-3lhli.md",
+      "name": "task-1794237960862-3lhli.md",
+      "sizeBytes": 103
+    },
+    "result": "Wynik wygenerowany przez model.",
+    "completedAt": "2026-11-09T15:26:00.864Z",
+    "error": "Brak pliku artefaktu na dysku: exports/agent_tasks/task-1794237960862-3lhli.md"
+  },
+  {
+    "id": "task-1794237960917-aav41",
+    "agent": "Alex",
+    "title": "Nieznana akcja",
+    "description": "Nie może udawać sukcesu.",
+    "status": "failed",
+    "createdAt": "2026-11-09T15:26:00.917Z",
+    "logs": [
+      "[2026-11-09T15:26:00.917Z] Zadanie zarejestrowane w kolejce.",
+      "[2026-11-09T15:26:00.917Z] Rozpoczęto wykonywanie zadania przez agenta Alex.",
+      "[2026-11-09T15:26:00.918Z] BŁĄD: Nieobsługiwany typ akcji: unsupported_action"
+    ],
+    "startedAt": "2026-11-09T15:26:00.917Z",
+    "error": "Nieobsługiwany typ akcji: unsupported_action",
+    "completedAt": "2026-11-09T15:26:00.918Z"
+  },
+  {
+    "id": "task-1794237987934-fws2a",
+    "agent": "Astyria",
+    "title": "Test audytu integralności",
+    "description": "Testowanie silnika zadań agentów",
+    "status": "completed",
+    "createdAt": "2026-11-09T15:26:27.934Z",
+    "logs": [
+      "[2026-11-09T15:26:27.934Z] Zadanie zarejestrowane w kolejce.",
+      "[2026-11-09T15:26:27.940Z] Rozpoczęto wykonywanie zadania przez agenta Astyria.",
+      "[2026-11-09T15:26:27.941Z] Skanowanie spójności plików jądra i konfiguracji...",
+      "[2026-11-09T15:26:28.543Z] Zapisano raport integralności: /app/applet/exports/system_integrity_report.json",
+      "[2026-11-09T15:26:28.544Z] Zadanie zakończone sukcesem. Artefakt potwierdzony: exports/system_integrity_report.json"
+    ],
+    "startedAt": "2026-11-09T15:26:27.940Z",
+    "artifact": {
+      "path": "exports/system_integrity_report.json",
+      "name": "system_integrity_report.json",
+      "sizeBytes": 236
+    },
+    "result": "Raport integralności wygenerowany pomyślnie (236 B).",
+    "completedAt": "2026-11-09T15:26:28.544Z"
+  },
+  {
+    "id": "task-1794237988550-jepiy",
+    "agent": "Alex",
+    "title": "Zapis pliku w nowej aplikacji",
+    "description": "Weryfikacja automatycznego tworzenia aplikacji przy zapisie pliku",
+    "status": "failed",
+    "createdAt": "2026-11-09T15:26:28.550Z",
+    "logs": [
+      "[2026-11-09T15:26:28.550Z] Zadanie zarejestrowane w kolejce.",
+      "[2026-11-09T15:26:28.551Z] Rozpoczęto wykonywanie zadania przez agenta Alex.",
+      "[2026-11-09T15:26:28.552Z] Zapisywanie pliku test.json do apps/test-auto-app-1794237988550...",
+      "[2026-11-09T15:26:28.557Z] Utworzono brakujący katalog aplikacji apps/test-auto-app-1794237988550.",
+      "[2026-11-09T15:26:28.557Z] Zapisano plik apps/test-auto-app-1794237988550/test.json.",
+      "[2026-11-09T15:26:28.558Z] Utworzono manifest app.json dla apps/test-auto-app-1794237988550.",
+      "[2026-11-09T15:26:28.558Z] Zadanie zakończone sukcesem. Artefakt potwierdzony: apps/test-auto-app-1794237988550/test.json"
+    ],
+    "startedAt": "2026-11-09T15:26:28.551Z",
+    "artifact": {
+      "path": "apps/test-auto-app-1794237988550/test.json",
+      "name": "test.json",
+      "sizeBytes": 11
+    },
+    "result": "Plik test.json w aplikacji test-auto-app-1794237988550 zapisany (11 B).",
+    "completedAt": "2026-11-09T15:26:28.558Z",
+    "error": "Brak pliku artefaktu na dysku: apps/test-auto-app-1794237988550/test.json"
+  },
+  {
+    "id": "task-1794237988662-j4bb8",
+    "agent": "Aria",
+    "title": "Raport testowy AI",
+    "description": "Przygotuj krótki raport.",
+    "status": "failed",
+    "createdAt": "2026-11-09T15:26:28.662Z",
+    "logs": [
+      "[2026-11-09T15:26:28.662Z] Zadanie zarejestrowane w kolejce.",
+      "[2026-11-09T15:26:28.665Z] Rozpoczęto wykonywanie zadania przez agenta Aria.",
+      "[2026-11-09T15:26:28.666Z] Wysyłanie zadania do skonfigurowanego modelu AI...",
+      "[2026-11-09T15:26:28.668Z] Model test-provider (test-model) przygotował odpowiedź.",
+      "[2026-11-09T15:26:28.672Z] Zadanie zakończone sukcesem. Artefakt potwierdzony: exports/agent_tasks/task-1794237988662-j4bb8.md"
+    ],
+    "startedAt": "2026-11-09T15:26:28.665Z",
+    "artifact": {
+      "path": "exports/agent_tasks/task-1794237988662-j4bb8.md",
+      "name": "task-1794237988662-j4bb8.md",
+      "sizeBytes": 103
+    },
+    "result": "Wynik wygenerowany przez model.",
+    "completedAt": "2026-11-09T15:26:28.672Z",
+    "error": "Brak pliku artefaktu na dysku: exports/agent_tasks/task-1794237988662-j4bb8.md"
+  },
+  {
+    "id": "task-1794237988725-8d5v9",
+    "agent": "Alex",
+    "title": "Nieznana akcja",
+    "description": "Nie może udawać sukcesu.",
+    "status": "failed",
+    "createdAt": "2026-11-09T15:26:28.725Z",
+    "logs": [
+      "[2026-11-09T15:26:28.725Z] Zadanie zarejestrowane w kolejce.",
+      "[2026-11-09T15:26:28.726Z] Rozpoczęto wykonywanie zadania przez agenta Alex.",
+      "[2026-11-09T15:26:28.726Z] BŁĄD: Nieobsługiwany typ akcji: unsupported_action"
+    ],
+    "startedAt": "2026-11-09T15:26:28.726Z",
+    "error": "Nieobsługiwany typ akcji: unsupported_action",
+    "completedAt": "2026-11-09T15:26:28.726Z"
+  },
+  {
+    "id": "task-1794238546258-18se3",
+    "agent": "Astyria",
+    "title": "Test audytu integralności",
+    "description": "Testowanie silnika zadań agentów",
+    "status": "completed",
+    "createdAt": "2026-11-09T15:35:46.258Z",
+    "logs": [
+      "[2026-11-09T15:35:46.258Z] Zadanie zarejestrowane w kolejce.",
+      "[2026-11-09T15:35:46.261Z] Rozpoczęto wykonywanie zadania przez agenta Astyria.",
+      "[2026-11-09T15:35:46.262Z] Skanowanie spójności plików jądra i konfiguracji...",
+      "[2026-11-09T15:35:46.863Z] Zapisano raport integralności: /app/applet/exports/system_integrity_report.json",
+      "[2026-11-09T15:35:46.863Z] Zadanie zakończone sukcesem. Artefakt potwierdzony: exports/system_integrity_report.json"
+    ],
+    "startedAt": "2026-11-09T15:35:46.261Z",
+    "artifact": {
+      "path": "exports/system_integrity_report.json",
+      "name": "system_integrity_report.json",
+      "sizeBytes": 236
+    },
+    "result": "Raport integralności wygenerowany pomyślnie (236 B).",
+    "completedAt": "2026-11-09T15:35:46.863Z"
+  },
+  {
+    "id": "task-1794238546868-gu74a",
+    "agent": "Alex",
+    "title": "Zapis pliku w nowej aplikacji",
+    "description": "Weryfikacja automatycznego tworzenia aplikacji przy zapisie pliku",
+    "status": "failed",
+    "createdAt": "2026-11-09T15:35:46.868Z",
+    "logs": [
+      "[2026-11-09T15:35:46.868Z] Zadanie zarejestrowane w kolejce.",
+      "[2026-11-09T15:35:46.869Z] Rozpoczęto wykonywanie zadania przez agenta Alex.",
+      "[2026-11-09T15:35:46.869Z] Zapisywanie pliku test.json do apps/test-auto-app-1794238546868...",
+      "[2026-11-09T15:35:46.870Z] Utworzono brakujący katalog aplikacji apps/test-auto-app-1794238546868.",
+      "[2026-11-09T15:35:46.870Z] Zapisano plik apps/test-auto-app-1794238546868/test.json.",
+      "[2026-11-09T15:35:46.870Z] Utworzono manifest app.json dla apps/test-auto-app-1794238546868.",
+      "[2026-11-09T15:35:46.871Z] Zadanie zakończone sukcesem. Artefakt potwierdzony: apps/test-auto-app-1794238546868/test.json"
+    ],
+    "startedAt": "2026-11-09T15:35:46.869Z",
+    "artifact": {
+      "path": "apps/test-auto-app-1794238546868/test.json",
+      "name": "test.json",
+      "sizeBytes": 11
+    },
+    "result": "Plik test.json w aplikacji test-auto-app-1794238546868 zapisany (11 B).",
+    "completedAt": "2026-11-09T15:35:46.871Z",
+    "error": "Brak pliku artefaktu na dysku: apps/test-auto-app-1794238546868/test.json"
+  },
+  {
+    "id": "task-1794238546978-q2k5v",
+    "agent": "Aria",
+    "title": "Raport testowy AI",
+    "description": "Przygotuj krótki raport.",
+    "status": "failed",
+    "createdAt": "2026-11-09T15:35:46.978Z",
+    "logs": [
+      "[2026-11-09T15:35:46.978Z] Zadanie zarejestrowane w kolejce.",
+      "[2026-11-09T15:35:46.980Z] Rozpoczęto wykonywanie zadania przez agenta Aria.",
+      "[2026-11-09T15:35:46.981Z] Wysyłanie zadania do skonfigurowanego modelu AI...",
+      "[2026-11-09T15:35:46.984Z] Model test-provider (test-model) przygotował odpowiedź.",
+      "[2026-11-09T15:35:46.984Z] Zadanie zakończone sukcesem. Artefakt potwierdzony: exports/agent_tasks/task-1794238546978-q2k5v.md"
+    ],
+    "startedAt": "2026-11-09T15:35:46.980Z",
+    "artifact": {
+      "path": "exports/agent_tasks/task-1794238546978-q2k5v.md",
+      "name": "task-1794238546978-q2k5v.md",
+      "sizeBytes": 103
+    },
+    "result": "Wynik wygenerowany przez model.",
+    "completedAt": "2026-11-09T15:35:46.984Z",
+    "error": "Brak pliku artefaktu na dysku: exports/agent_tasks/task-1794238546978-q2k5v.md"
+  },
+  {
+    "id": "task-1794238547041-dbknx",
+    "agent": "Alex",
+    "title": "Nieznana akcja",
+    "description": "Nie może udawać sukcesu.",
+    "status": "failed",
+    "createdAt": "2026-11-09T15:35:47.041Z",
+    "logs": [
+      "[2026-11-09T15:35:47.041Z] Zadanie zarejestrowane w kolejce.",
+      "[2026-11-09T15:35:47.042Z] Rozpoczęto wykonywanie zadania przez agenta Alex.",
+      "[2026-11-09T15:35:47.042Z] BŁĄD: Nieobsługiwany typ akcji: unsupported_action"
+    ],
+    "startedAt": "2026-11-09T15:35:47.042Z",
+    "error": "Nieobsługiwany typ akcji: unsupported_action",
+    "completedAt": "2026-11-09T15:35:47.042Z"
+  },
+  {
+    "id": "task-1794238580392-v81wg",
+    "agent": "Astyria",
+    "title": "Test audytu integralności",
+    "description": "Testowanie silnika zadań agentów",
+    "status": "completed",
+    "createdAt": "2026-11-09T15:36:20.392Z",
+    "logs": [
+      "[2026-11-09T15:36:20.392Z] Zadanie zarejestrowane w kolejce.",
+      "[2026-11-09T15:36:20.408Z] Rozpoczęto wykonywanie zadania przez agenta Astyria.",
+      "[2026-11-09T15:36:20.409Z] Skanowanie spójności plików jądra i konfiguracji...",
+      "[2026-11-09T15:36:21.011Z] Zapisano raport integralności: /app/applet/exports/system_integrity_report.json",
+      "[2026-11-09T15:36:21.011Z] Zadanie zakończone sukcesem. Artefakt potwierdzony: exports/system_integrity_report.json"
+    ],
+    "startedAt": "2026-11-09T15:36:20.408Z",
+    "artifact": {
+      "path": "exports/system_integrity_report.json",
+      "name": "system_integrity_report.json",
+      "sizeBytes": 236
+    },
+    "result": "Raport integralności wygenerowany pomyślnie (236 B).",
+    "completedAt": "2026-11-09T15:36:21.011Z"
+  },
+  {
+    "id": "task-1794238581015-rrgjz",
+    "agent": "Alex",
+    "title": "Zapis pliku w nowej aplikacji",
+    "description": "Weryfikacja automatycznego tworzenia aplikacji przy zapisie pliku",
+    "status": "failed",
+    "createdAt": "2026-11-09T15:36:21.015Z",
+    "logs": [
+      "[2026-11-09T15:36:21.015Z] Zadanie zarejestrowane w kolejce.",
+      "[2026-11-09T15:36:21.016Z] Rozpoczęto wykonywanie zadania przez agenta Alex.",
+      "[2026-11-09T15:36:21.016Z] Zapisywanie pliku test.json do apps/test-auto-app-1794238581015...",
+      "[2026-11-09T15:36:21.016Z] Utworzono brakujący katalog aplikacji apps/test-auto-app-1794238581015.",
+      "[2026-11-09T15:36:21.017Z] Zapisano plik apps/test-auto-app-1794238581015/test.json.",
+      "[2026-11-09T15:36:21.017Z] Utworzono manifest app.json dla apps/test-auto-app-1794238581015.",
+      "[2026-11-09T15:36:21.018Z] Zadanie zakończone sukcesem. Artefakt potwierdzony: apps/test-auto-app-1794238581015/test.json"
+    ],
+    "startedAt": "2026-11-09T15:36:21.016Z",
+    "artifact": {
+      "path": "apps/test-auto-app-1794238581015/test.json",
+      "name": "test.json",
+      "sizeBytes": 11
+    },
+    "result": "Plik test.json w aplikacji test-auto-app-1794238581015 zapisany (11 B).",
+    "completedAt": "2026-11-09T15:36:21.018Z",
+    "error": "Brak pliku artefaktu na dysku: apps/test-auto-app-1794238581015/test.json"
+  },
+  {
+    "id": "task-1794238581123-i6b5c",
+    "agent": "Aria",
+    "title": "Raport testowy AI",
+    "description": "Przygotuj krótki raport.",
+    "status": "failed",
+    "createdAt": "2026-11-09T15:36:21.123Z",
+    "logs": [
+      "[2026-11-09T15:36:21.123Z] Zadanie zarejestrowane w kolejce.",
+      "[2026-11-09T15:36:21.123Z] Rozpoczęto wykonywanie zadania przez agenta Aria.",
+      "[2026-11-09T15:36:21.124Z] Wysyłanie zadania do skonfigurowanego modelu AI...",
+      "[2026-11-09T15:36:21.125Z] Model test-provider (test-model) przygotował odpowiedź.",
+      "[2026-11-09T15:36:21.125Z] Zadanie zakończone sukcesem. Artefakt potwierdzony: exports/agent_tasks/task-1794238581123-i6b5c.md"
+    ],
+    "startedAt": "2026-11-09T15:36:21.123Z",
+    "artifact": {
+      "path": "exports/agent_tasks/task-1794238581123-i6b5c.md",
+      "name": "task-1794238581123-i6b5c.md",
+      "sizeBytes": 103
+    },
+    "result": "Wynik wygenerowany przez model.",
+    "completedAt": "2026-11-09T15:36:21.125Z",
+    "error": "Brak pliku artefaktu na dysku: exports/agent_tasks/task-1794238581123-i6b5c.md"
+  },
+  {
+    "id": "task-1794238581184-tdt5j",
+    "agent": "Alex",
+    "title": "Nieznana akcja",
+    "description": "Nie może udawać sukcesu.",
+    "status": "failed",
+    "createdAt": "2026-11-09T15:36:21.184Z",
+    "logs": [
+      "[2026-11-09T15:36:21.184Z] Zadanie zarejestrowane w kolejce.",
+      "[2026-11-09T15:36:21.186Z] Rozpoczęto wykonywanie zadania przez agenta Alex.",
+      "[2026-11-09T15:36:21.191Z] BŁĄD: Nieobsługiwany typ akcji: unsupported_action"
+    ],
+    "startedAt": "2026-11-09T15:36:21.186Z",
+    "error": "Nieobsługiwany typ akcji: unsupported_action",
+    "completedAt": "2026-11-09T15:36:21.191Z"
+  },
+  {
+    "id": "task-1794238819106-uz3wu",
+    "agent": "Astyria",
+    "title": "Test audytu integralności",
+    "description": "Testowanie silnika zadań agentów",
+    "status": "completed",
+    "createdAt": "2026-11-09T15:40:19.106Z",
+    "logs": [
+      "[2026-11-09T15:40:19.106Z] Zadanie zarejestrowane w kolejce.",
+      "[2026-11-09T15:40:19.108Z] Rozpoczęto wykonywanie zadania przez agenta Astyria.",
+      "[2026-11-09T15:40:19.108Z] Skanowanie spójności plików jądra i konfiguracji...",
+      "[2026-11-09T15:40:19.710Z] Zapisano raport integralności: /app/applet/exports/system_integrity_report.json",
+      "[2026-11-09T15:40:19.710Z] Zadanie zakończone sukcesem. Artefakt potwierdzony: exports/system_integrity_report.json"
+    ],
+    "startedAt": "2026-11-09T15:40:19.108Z",
+    "artifact": {
+      "path": "exports/system_integrity_report.json",
+      "name": "system_integrity_report.json",
+      "sizeBytes": 236
+    },
+    "result": "Raport integralności wygenerowany pomyślnie (236 B).",
+    "completedAt": "2026-11-09T15:40:19.710Z"
+  },
+  {
+    "id": "task-1794238819719-slyg9",
+    "agent": "Alex",
+    "title": "Zapis pliku w nowej aplikacji",
+    "description": "Weryfikacja automatycznego tworzenia aplikacji przy zapisie pliku",
+    "status": "failed",
+    "createdAt": "2026-11-09T15:40:19.719Z",
+    "logs": [
+      "[2026-11-09T15:40:19.719Z] Zadanie zarejestrowane w kolejce.",
+      "[2026-11-09T15:40:19.720Z] Rozpoczęto wykonywanie zadania przez agenta Alex.",
+      "[2026-11-09T15:40:19.720Z] Zapisywanie pliku test.json do apps/test-auto-app-1794238819719...",
+      "[2026-11-09T15:40:19.721Z] Utworzono brakujący katalog aplikacji apps/test-auto-app-1794238819719.",
+      "[2026-11-09T15:40:19.721Z] Zapisano plik apps/test-auto-app-1794238819719/test.json.",
+      "[2026-11-09T15:40:19.722Z] Utworzono manifest app.json dla apps/test-auto-app-1794238819719.",
+      "[2026-11-09T15:40:19.723Z] Zadanie zakończone sukcesem. Artefakt potwierdzony: apps/test-auto-app-1794238819719/test.json"
+    ],
+    "startedAt": "2026-11-09T15:40:19.720Z",
+    "artifact": {
+      "path": "apps/test-auto-app-1794238819719/test.json",
+      "name": "test.json",
+      "sizeBytes": 11
+    },
+    "result": "Plik test.json w aplikacji test-auto-app-1794238819719 zapisany (11 B).",
+    "completedAt": "2026-11-09T15:40:19.723Z",
+    "error": "Brak pliku artefaktu na dysku: apps/test-auto-app-1794238819719/test.json"
+  },
+  {
+    "id": "task-1794238819829-lzohq",
+    "agent": "Aria",
+    "title": "Raport testowy AI",
+    "description": "Przygotuj krótki raport.",
+    "status": "failed",
+    "createdAt": "2026-11-09T15:40:19.829Z",
+    "logs": [
+      "[2026-11-09T15:40:19.829Z] Zadanie zarejestrowane w kolejce.",
+      "[2026-11-09T15:40:19.830Z] Rozpoczęto wykonywanie zadania przez agenta Aria.",
+      "[2026-11-09T15:40:19.830Z] Wysyłanie zadania do skonfigurowanego modelu AI...",
+      "[2026-11-09T15:40:19.831Z] Model test-provider (test-model) przygotował odpowiedź.",
+      "[2026-11-09T15:40:19.831Z] Zadanie zakończone sukcesem. Artefakt potwierdzony: exports/agent_tasks/task-1794238819829-lzohq.md"
+    ],
+    "startedAt": "2026-11-09T15:40:19.830Z",
+    "artifact": {
+      "path": "exports/agent_tasks/task-1794238819829-lzohq.md",
+      "name": "task-1794238819829-lzohq.md",
+      "sizeBytes": 103
+    },
+    "result": "Wynik wygenerowany przez model.",
+    "completedAt": "2026-11-09T15:40:19.831Z",
+    "error": "Brak pliku artefaktu na dysku: exports/agent_tasks/task-1794238819829-lzohq.md"
+  },
+  {
+    "id": "task-1794238819890-6vnqo",
+    "agent": "Alex",
+    "title": "Nieznana akcja",
+    "description": "Nie może udawać sukcesu.",
+    "status": "failed",
+    "createdAt": "2026-11-09T15:40:19.890Z",
+    "logs": [
+      "[2026-11-09T15:40:19.890Z] Zadanie zarejestrowane w kolejce.",
+      "[2026-11-09T15:40:19.891Z] Rozpoczęto wykonywanie zadania przez agenta Alex.",
+      "[2026-11-09T15:40:19.893Z] BŁĄD: Nieobsługiwany typ akcji: unsupported_action"
+    ],
+    "startedAt": "2026-11-09T15:40:19.891Z",
+    "error": "Nieobsługiwany typ akcji: unsupported_action",
+    "completedAt": "2026-11-09T15:40:19.893Z"
+  },
+  {
+    "id": "task-1794238833021-5cdzm",
+    "agent": "Astyria",
+    "title": "Test audytu integralności",
+    "description": "Testowanie silnika zadań agentów",
+    "status": "completed",
+    "createdAt": "2026-11-09T15:40:33.021Z",
+    "logs": [
+      "[2026-11-09T15:40:33.021Z] Zadanie zarejestrowane w kolejce.",
+      "[2026-11-09T15:40:33.023Z] Rozpoczęto wykonywanie zadania przez agenta Astyria.",
+      "[2026-11-09T15:40:33.027Z] Skanowanie spójności plików jądra i konfiguracji...",
+      "[2026-11-09T15:40:33.628Z] Zapisano raport integralności: /app/applet/exports/system_integrity_report.json",
+      "[2026-11-09T15:40:33.629Z] Zadanie zakończone sukcesem. Artefakt potwierdzony: exports/system_integrity_report.json"
+    ],
+    "startedAt": "2026-11-09T15:40:33.023Z",
+    "artifact": {
+      "path": "exports/system_integrity_report.json",
+      "name": "system_integrity_report.json",
+      "sizeBytes": 236
+    },
+    "result": "Raport integralności wygenerowany pomyślnie (236 B).",
+    "completedAt": "2026-11-09T15:40:33.629Z"
+  },
+  {
+    "id": "task-1794238833634-0h343",
+    "agent": "Alex",
+    "title": "Zapis pliku w nowej aplikacji",
+    "description": "Weryfikacja automatycznego tworzenia aplikacji przy zapisie pliku",
+    "status": "completed",
+    "createdAt": "2026-11-09T15:40:33.634Z",
+    "logs": [
+      "[2026-11-09T15:40:33.634Z] Zadanie zarejestrowane w kolejce.",
+      "[2026-11-09T15:40:33.634Z] Rozpoczęto wykonywanie zadania przez agenta Alex.",
+      "[2026-11-09T15:40:33.634Z] Zapisywanie pliku test.json do apps/test-auto-app-1794238833634...",
+      "[2026-11-09T15:40:33.635Z] Utworzono brakujący katalog aplikacji apps/test-auto-app-1794238833634.",
+      "[2026-11-09T15:40:33.635Z] Zapisano plik apps/test-auto-app-1794238833634/test.json.",
+      "[2026-11-09T15:40:33.636Z] Utworzono manifest app.json dla apps/test-auto-app-1794238833634.",
+      "[2026-11-09T15:40:33.637Z] Zadanie zakończone sukcesem. Artefakt potwierdzony: apps/test-auto-app-1794238833634/test.json"
+    ],
+    "startedAt": "2026-11-09T15:40:33.634Z",
+    "artifact": {
+      "path": "apps/test-auto-app-1794238833634/test.json",
+      "name": "test.json",
+      "sizeBytes": 11
+    },
+    "result": "Plik test.json w aplikacji test-auto-app-1794238833634 zapisany (11 B).",
+    "completedAt": "2026-11-09T15:40:33.637Z"
+  },
+  {
+    "id": "task-1794238833744-496py",
+    "agent": "Aria",
+    "title": "Raport testowy AI",
+    "description": "Przygotuj krótki raport.",
+    "status": "completed",
+    "createdAt": "2026-11-09T15:40:33.744Z",
+    "logs": [
+      "[2026-11-09T15:40:33.744Z] Zadanie zarejestrowane w kolejce.",
+      "[2026-11-09T15:40:33.746Z] Rozpoczęto wykonywanie zadania przez agenta Aria.",
+      "[2026-11-09T15:40:33.747Z] Wysyłanie zadania do skonfigurowanego modelu AI...",
+      "[2026-11-09T15:40:33.753Z] Model test-provider (test-model) przygotował odpowiedź.",
+      "[2026-11-09T15:40:33.755Z] Zadanie zakończone sukcesem. Artefakt potwierdzony: exports/agent_tasks/task-1794238833744-496py.md"
+    ],
+    "startedAt": "2026-11-09T15:40:33.746Z",
+    "artifact": {
+      "path": "exports/agent_tasks/task-1794238833744-496py.md",
+      "name": "task-1794238833744-496py.md",
+      "sizeBytes": 103
+    },
+    "result": "Wynik wygenerowany przez model.",
+    "completedAt": "2026-11-09T15:40:33.755Z"
+  },
+  {
+    "id": "task-1794238833807-y3832",
+    "agent": "Alex",
+    "title": "Nieznana akcja",
+    "description": "Nie może udawać sukcesu.",
+    "status": "failed",
+    "createdAt": "2026-11-09T15:40:33.807Z",
+    "logs": [
+      "[2026-11-09T15:40:33.807Z] Zadanie zarejestrowane w kolejce.",
+      "[2026-11-09T15:40:33.808Z] Rozpoczęto wykonywanie zadania przez agenta Alex.",
+      "[2026-11-09T15:40:33.808Z] BŁĄD: Nieobsługiwany typ akcji: unsupported_action"
+    ],
+    "startedAt": "2026-11-09T15:40:33.808Z",
+    "error": "Nieobsługiwany typ akcji: unsupported_action",
+    "completedAt": "2026-11-09T15:40:33.808Z"
   }
 ]

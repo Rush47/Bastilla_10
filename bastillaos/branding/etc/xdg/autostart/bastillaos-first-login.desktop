@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=BastillaOS First Login
+Comment=Set the BastillaOS wallpaper for this user once
+Exec=/usr/lib/bastillaos/first-login-wallpaper.sh
+TryExec=/usr/lib/bastillaos/first-login-wallpaper.sh
+OnlyShowIn=KDE;
+NoDisplay=true
+Terminal=false
+X-KDE-autostart-after=panel
