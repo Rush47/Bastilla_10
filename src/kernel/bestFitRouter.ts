@@ -98,7 +98,7 @@ export function selectBestFit<Ctx>(
   const { minScore, maxWords, minConfidence } = { ...BEST_FIT_DEFAULTS, ...options };
   const trimmed = message.trim();
   if (!trimmed || trimmed.startsWith('/') || trimmed.startsWith('!')) return null;
-  if (trimmed.toLowerCase().startsWith(FORCE_LLM_PREFIX)) return null;
+  if (/^@model(?:\s|$)/i.test(trimmed)) return null;
 
   const tokens = tokenizeIntent(trimmed);
   if (tokens.length === 0 || tokens.length > maxWords) return null;
@@ -117,7 +117,7 @@ export function selectBestFit<Ctx>(
 /** Usuwa prefiks @model, jeśli operator wymusił odpowiedź modelu. */
 export function stripForceLlmPrefix(message: string): string {
   const trimmed = message.trimStart();
-  return trimmed.toLowerCase().startsWith(FORCE_LLM_PREFIX)
+  return /^@model(?:\s|$)/i.test(trimmed)
     ? trimmed.slice(FORCE_LLM_PREFIX.length).trimStart()
     : message;
 }

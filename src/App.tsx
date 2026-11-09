@@ -44,6 +44,7 @@ import {
   TRIAD_AGENT_NAMES,
 } from './kernel/agentProtocol';
 import { ChatAttachment, formatChatMessage } from './kernel/chatAttachments';
+import { stripForceLlmPrefix } from './kernel/bestFitRouter';
 import { isChatSystemChange } from './kernel/chatChanges';
 import type { ChatSystemChange } from './kernel/chatChanges';
 
@@ -376,7 +377,7 @@ export default function App() {
       ].includes(normalizedCommand);
       const response = await fetch(isFullChatRepair ? '/api/astyria/mission' : '/api/triad/message', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Bastilla-UI': '1' },
         body: JSON.stringify(isFullChatRepair
           ? { action: 'full_system_app_chat_repair', userMessage: message.trim() }
           : { message, agent: chatAgent, attachments }),
@@ -401,10 +402,10 @@ export default function App() {
         {
           agent: 'Mateusz Mitek',
           tekst: attachments.length > 0
-            ? formatChatMessage(message, attachments)
+            ? formatChatMessage(stripForceLlmPrefix(message), attachments)
             : message.startsWith('/propose write-file ')
             ? message
-            : message.trim(),
+            : stripForceLlmPrefix(message).trim(),
         },
         ...expectedAgentReplies,
       ];
