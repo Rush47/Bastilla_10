@@ -1553,6 +1553,9 @@ app.get('/api/ai/status', async (_req, res) => {
   res.json({ ...inventory, provider: 'Ollama (lokalnie)', model: STANDARD_OLLAMA_MODEL,
     enabled: true, availableForChat: inventory.connected && inventory.standardAvailable,
     connection: 'local-ollama', chain: [describeLlmProvider('ollama')], fallback: 'wyłączony',
+    chatDiagnostic: inventory.connected
+      ? (inventory.standardAvailable ? 'Model dostępny — sprawdź żądanie czatu.' : `Ollama działa, ale brak modelu ${STANDARD_OLLAMA_MODEL}.`)
+      : `Backend nie może połączyć się z Ollamą pod ${LLM_CHAIN_CONFIG.ollamaBaseUrl || DEFAULT_OLLAMA_BASE_URL}. Adres localhost wskazuje środowisko backendu, nie komputer użytkownika.`,
     automationDisabled: true, protocol: '/api/triad/command', chatProtocol: '/api/triad/message',
     hyperOsConsole: '/api/hyperos/console', hyperOsChain: [describeLlmProvider('ollama')] });
 });
@@ -1684,7 +1687,10 @@ function pushSystemLog(
   if (systemLogs.length > 350) {
     systemLogs.shift();
   }
-
+  // Runtime logs must remain visible in Codespaces/AI Studio server output.
+  if (level === 'error' || level === 'warn') {
+    console.error(`[BASTILLA][${level.toUpperCase()}][${source}] ${message}`);
+  }
 }
 
 function scanSystemLogs(reason: string): string {
@@ -3011,6 +3017,7 @@ app.post('/api/chat', async (req, res) => {
         return res.json({ success: true, reply: local.reply, provider: 'local_nlp_fallback', model: 'without_nlp' });
       } catch {}
     }
+    pushSystemLog('error', 'KERNEL', `[CZAT /api/chat] ${String(error?.message || error || 'Model 8B nie odpowiedział.').slice(0, 700)}`);
     return sendChatError(req, res, 502, error?.message || 'Model 8B nie odpowiedział.');
   }
 });
