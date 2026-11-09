@@ -93,6 +93,48 @@ const uploadLimitMB = Number.isFinite(requestedUploadLimit)
   ? Math.max(1, Math.min(256, Math.floor(requestedUploadLimit)))
   : 32;
 app.use(express.json({ limit: `${uploadLimitMB}mb` }));
+
+/**
+ * Optional AI Linux REST bridge. Disabled unless all three environment values
+ * are configured. This does not claim to migrate original agent identities.
+ * Requests require a server-side access key and never expose AI Linux tokens.
+ */
+const AI_LINUX_AGENT_URL = (process.env.AI_LINUX_AGENT_URL || '').replace(/\\/$/, '');
+const AI_LINUX_AGENT_TOKEN = process.env.AI_LINUX_AGENT_TOKEN || '';
+const BASTILLA_BRIDGE_ACCESS_KEY = process.env.BASTILLA_BRIDGE_ACCESS_KEY || '';
+const bridgeEnabled = Boolean(AI_LINUX_AGENT_URL && AI_LINUX_AGENT_TOKEN && BASTILLA_BRIDGE_ACCESS_KEY);
+const bridgeAuth = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+  if (!bridgeEnabled) return res.status(503).json({ error: 'AI Linux agent bridge not configured' });
+  if (req.header('x-agent-bridge-key') !== BASTILLA_BRIDGE_ACCESS_KEY) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  next();
+};
+const proxyAgentRequest = async (req: express.Request, res: express.Response, suffix: string, method = 'GET') => {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15000);
+    try {
+      const upstream = await fetch(AI_LINUX_AGENT_URL + suffix, {
+        method,
+        headers: { Authorization: 'Bearer ' + AI_LINUX_AGENT_TOKEN, ...(method === 'POST' ? { 'Content-Type': 'application/json' } : {}) },
+        ...(method === 'POST' ? { body: JSON.stringify(req.body) } : {}),
+        signal: controller.signal,
+      });
+      const body = await upstream.text();
+      res.status(upstream.status).type('application/json').send(body);
+    } finally { clearTimeout(timer); }
+  } catch {
+    res.status(502).json({ error: 'AI Linux agent bridge unavailable' });
+  }
+};
+app.get('/api/agent-bridge/agents', bridgeAuth, (req, res) => void proxyAgentRequest(req, res, '/agents'));
+app.post('/api/agent-bridge/tasks', bridgeAuth, (req, res) => void proxyAgentRequest(req, res, '/tasks', 'POST'));
+app.get('/api/agent-bridge/tasks/:id', bridgeAuth, (req, res) => {
+  if (!/^[a-f0-9-]{36}$/.test(req.params.id)) return res.status(400).json({ error: 'Invalid task id' });
+  void proxyAgentRequest(req, res, '/tasks/' + req.params.id);
+});
+
 app.use(express.urlencoded({ limit: `${uploadLimitMB}mb`, extended: true }));
 
 app.use((err: any, _req: express.Request, res: express.Response, next: express.NextFunction) => {
