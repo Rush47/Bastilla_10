@@ -3002,7 +3002,7 @@ app.post('/api/chat', async (req, res) => {
     }, AbortSignal.timeout(LLM_CHAT_TIMEOUT_MS));
     res.json({ success: true, reply: result.text, provider: result.provider, model: result.model });
   } catch (error: any) {
-    if (req.get('X-Bastilla-UI') === '1' || process.env.CHAT_LOCAL_FALLBACK === 'force') {
+    if (process.env.CHAT_LOCAL_FALLBACK === 'force') {
       try {
         const currentState = await getPythonKernelState(true);
         const store = currentState?.store && typeof currentState.store === 'object' ? currentState.store : {};
@@ -3672,7 +3672,7 @@ app.post('/api/triad/message', async (req, res) => {
 
     const failed = results.filter((result) => result.error);
     if (failed.length > 0) {
-      if (req.get('X-Bastilla-UI') === '1' || process.env.CHAT_LOCAL_FALLBACK === 'force') {
+      if (process.env.CHAT_LOCAL_FALLBACK === 'force') {
         const context = buildSystemContext(store);
         for (const resItem of results) {
           if (resItem.error || !resItem.text) {
