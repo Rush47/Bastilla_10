@@ -157,7 +157,7 @@ test('awaria Gemini i xAI → lokalny model Ollama', async () => {
   assert.deepEqual(call.body.messages.map((m) => m.role), ['system', 'user', 'assistant', 'user']);
 });
 
-test('Ollama bez obsługi think → ponowienie bez tej opcji; brak modelu → podpowiedź pull', async () => {
+test('Ollama bez obsługi think → ponowienie bez tej opcji; brak modelu → jawny błąd bez instalacji', async () => {
   const { impl, calls } = mockFetch([
     [/api\/chat/, { when: (b) => b.think === false, respond: () => json(400, { error: 'model does not support thinking' }) }],
     [/api\/chat/, { respond: () => ollamaOk('Działa bez think.') }],
@@ -169,13 +169,13 @@ test('Ollama bez obsługi think → ponowienie bez tej opcji; brak modelu → po
   const missing = mockFetch([[/api\/chat/, { respond: () => json(404, { error: 'model not found' }) }]]);
   await assert.rejects(
     generateWithChain({ ollamaModel: 'gemma4:12b', fetchImpl: missing.impl }, request),
-    (error) => error instanceof LlmChainError && /ollama pull gemma4:12b/.test(error.failures[0]),
+    (error) => error instanceof LlmChainError && /Wymagany model gemma4:12b jest niedostępny/.test(error.failures[0]),
   );
 
   const down = mockFetch([[/api\/chat/, { respond: () => { throw new TypeError('fetch failed'); } }]]);
   await assert.rejects(
     generateWithChain({ ollamaModel: 'gemma4:12b', fetchImpl: down.impl }, request),
-    (error) => error instanceof LlmChainError && /ollama serve/.test(error.failures[0]),
+    (error) => error instanceof LlmChainError && /serwer nie odpowiada/.test(error.failures[0]),
   );
 });
 
@@ -197,33 +197,38 @@ test('kolejność z Ollamą i usuwanie bloków rozumowania', () => {
   assert.equal(stripThinking('bez myślenia'), 'bez myślenia');
 });
 
-test('tylko Ollama: Gemini i xAI pomijane mimo kluczy, model wykryty z /api/tags', async () => {
+test('legacy auto selects the standard 8B without discovering or caching a small model', async () => {
   resetOllamaModelCache();
   const { impl, calls } = mockFetch([
-    [/api\/tags/, { respond: () => json(200, { models: [
-      { name: 'nomic-embed-text:latest', size: 300 },
-      { name: 'qwen3.5:4b', size: 3_300_000_000 },
-      { name: 'qwen3.5:2b', size: 1_900_000_000 },
-    ] }) }],
+    [/api\/tags/, { respond: () => json(200, { models: [{ name: 'qwen3.5:2b', size: 1_900_000_000 }] }) }],
     [/api\/chat/, { respond: (body) => ollamaOk(`Odpowiada ${body.model}.`) }],
   ]);
   const config = { providers: ['ollama'], geminiApiKey: 'g', xaiApiKey: 'x', ollamaModel: 'auto', fetchImpl: impl };
   assert.deepEqual(configuredProviders(config), ['ollama']);
-  const result = await generateWithChain(config, request);
-  assert.equal(result.provider, 'ollama');
-  assert.equal(result.model, 'qwen3.5:4b');
-  assert.ok(calls.every((call) => !/generativelanguage|x\.ai/.test(call.url)));
-  await generateWithChain(config, request);
-  assert.equal(calls.filter((call) => call.url.includes('/api/tags')).length, 1, 'model wykrywany raz (cache)');
+  for (let restart = 0; restart < 2; restart += 1) {
+    resetOllamaModelCache();
+    const result = await generateWithChain({ ...config }, request);
+    assert.equal(result.provider, 'ollama');
+    assert.equal(result.model, 'dolphin-llama3:8b');
+  }
+  assert.ok(calls.every((call) => call.url.endsWith('/api/chat')));
+  assert.ok(calls.every((call) => call.body.model === 'dolphin-llama3:8b'));
 });
 
-test('tylko Ollama bez pobranych modeli → czytelny błąd', async () => {
+test('missing standard 8B fails even if a smaller model is installed, without pull or replacement', async () => {
   resetOllamaModelCache();
-  const { impl } = mockFetch([[/api\/tags/, { respond: () => json(200, { models: [] }) }]]);
+  const { impl, calls } = mockFetch([
+    [/api\/tags/, { respond: () => json(200, { models: [{ name: 'qwen3.5:2b' }] }) }],
+    [/api\/chat/, { respond: () => json(404, { error: 'model not found' }) }],
+  ]);
   await assert.rejects(
-    generateWithChain({ providers: ['ollama'], fetchImpl: impl }, request),
-    (error) => error instanceof LlmChainError && /npm run setup:ollama/.test(error.failures[0]),
+    generateWithChain({ providers: ['ollama'], ollamaModel: 'dolphin-llama3:8b', fetchImpl: impl }, request),
+    (error) => error instanceof LlmChainError
+      && /Wymagany model dolphin-llama3:8b jest niedostępny/.test(error.failures[0])
+      && !/ollama pull|setup:ollama/.test(error.failures[0]),
   );
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].body.model, 'dolphin-llama3:8b');
   assert.equal(pickOllamaChatModel([{ name: 'bge-m3' }]), null);
 });
 

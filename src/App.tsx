@@ -172,36 +172,12 @@ export default function App() {
 
   // Full system & version synchronization via Astyria mission endpoint + kernel state
   const handleSyncSystem = async () => {
-    try {
-      const res = await fetch('/api/astyria/mission', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'sync_versions', silentChat: true }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        const rawStore = data.state?.store || data.state;
-        if (rawStore) {
-          const normalized = normalizeDataStore(rawStore);
-          setDataStore(normalized);
-          try {
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(normalized));
-          } catch {}
-          return;
-        }
-      }
-      // Fallback direct state fetch if mission endpoint didn't return store (fresh=1 bypasses server cache)
-      const stateRes = await fetch('/api/kernel/state?fresh=1');
-      if (stateRes.ok) {
-        const stateData = await stateRes.json();
-        if (stateData?.store) {
-          const normalized = normalizeDataStore(stateData.store);
-          setDataStore(normalized);
-        }
-      }
-    } catch (e) {
-      console.error(e);
-    }
+    const response = await fetch('/api/kernel/state?fresh=1', { cache: 'no-store' });
+    const data = await response.json();
+    if (!response.ok || !data?.store) throw new Error('Nie udało się odświeżyć stanu serwera.');
+    const normalized = normalizeDataStore(data.store);
+    setDataStore(normalized);
+    try { localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(normalized)); } catch {}
   };
 
   // Immediate manual force sync (used by AgentCommsView Synchronizuj button)
@@ -319,6 +295,7 @@ export default function App() {
       if (!response.ok || result.success !== true || typeof result.reply !== 'string') {
         throw new Error(result.error || `Nie udało się wykonać misji Astyrii (HTTP ${response.status}).`);
       }
+      if (action === 'deep_scan' || action === 'vm_firewall_audit') return;
       const store = result.state?.store;
       if (
         !store ||
@@ -363,33 +340,17 @@ export default function App() {
     setIsAgentLoading(true);
     setAgentError(null);
     try {
-      const normalizedCommand = message
-        .trim()
-        .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')
-        .toLocaleLowerCase('pl-PL')
-        .replace(/\s+/g, ' ');
-      const isFullChatRepair = attachments.length === 0 && [
-        'napraw to',
-        'napraw czat',
-        'pelna naprawa czatu',
-        'odpowiedz pelna naprawa czatu',
-      ].includes(normalizedCommand);
-      const response = await fetch(isFullChatRepair ? '/api/astyria/mission' : '/api/triad/message', {
+      const response = await fetch('/api/triad/message', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Bastilla-UI': '1' },
-        body: JSON.stringify(isFullChatRepair
-          ? { action: 'full_system_app_chat_repair', userMessage: message.trim() }
-          : { message, agent: chatAgent, attachments }),
+        body: JSON.stringify({ message, agent: chatAgent, attachments }),
       });
       const result = await response.json();
       if (!response.ok || result.success !== true || typeof result.reply !== 'string') {
         throw new Error(result.error || `Nie udało się wysłać wiadomości (HTTP ${response.status}).`);
       }
       const normalized = normalizeDataStore(result.state?.store);
-      const expectedAgentReplies = isFullChatRepair
-        ? [{ agent: 'Astyria', tekst: result.reply }]
-        : chatAgent === 'triad'
+      const expectedAgentReplies = chatAgent === 'triad'
         ? TRIAD_AGENT_NAMES.map((agent) => ({
             agent,
             tekst: result.replies?.[agent],
@@ -431,34 +392,6 @@ export default function App() {
     }
   };
 
-  const handleProvisionGeminiVm = async (): Promise<{ status: string; sshCommand: string }> => {
-    const response = await fetch('/api/vm-gemini-4/provision', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        operation: 'create',
-        confirmation: 'CREATE_VM_GEMINI_4',
-      }),
-    });
-    const result: unknown = await response.json();
-    if (
-      !response.ok ||
-      !result ||
-      typeof result !== 'object' ||
-      !('success' in result) ||
-      result.success !== true ||
-      !('status' in result) ||
-      typeof result.status !== 'string' ||
-      !('sshCommand' in result) ||
-      typeof result.sshCommand !== 'string'
-    ) {
-      const error = result && typeof result === 'object' && 'error' in result && typeof result.error === 'string'
-        ? result.error
-        : `Nie udało się utworzyć VM (HTTP ${response.status}).`;
-      throw new Error(error);
-    }
-    return { status: result.status, sshCommand: result.sshCommand };
-  };
 
   const handleClearHistory = async () => {
     setDataStore((prev) => ({
@@ -522,7 +455,7 @@ export default function App() {
               dataStore={dataStore}
               onNavigate={setActiveTab}
               onSendMessage={handleSendMessage}
-              onProvisionGeminiVm={handleProvisionGeminiVm}
+
             />
           )}
 

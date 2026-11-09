@@ -1,20 +1,22 @@
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFile, access } from 'node:fs/promises';
 import test from 'node:test';
 
-const entrypoint = await readFile(new URL('../bastillaos/vm-gemini-4/entrypoint.sh', import.meta.url), 'utf8');
 const compose = await readFile(new URL('../bastillaos/vm-gemini-4/compose.yaml', import.meta.url), 'utf8');
 
-test('VM agent SSH account has no sudo and the old VM disk is preserved', () => {
-  assert.match(entrypoint, /DISK_IMAGE="\/data\/vm-gemini-4-restricted\.qcow2"/);
-  assert.match(entrypoint, /- name: svl-agent[\s\S]*?sudo: false[\s\S]*?ssh_authorized_keys:/);
-  assert.match(entrypoint, /- name: debian[\s\S]*?groups: \[adm\][\s\S]*?sudo: false/);
-  assert.match(entrypoint, /usermod, -G, adm, debian/);
-  assert.match(entrypoint, /rm, -f, \/etc\/sudoers\.d\/90-cloud-init-users/);
-  assert.doesNotMatch(entrypoint, /NOPASSWD|groups: \[[^\]]*\bsudo\b/);
+test('VM provisioning scripts are removed and compose cannot download, build or launch a guest', async () => {
+  for (const file of ['entrypoint.sh', 'Dockerfile', 'compose.kvm.yaml']) {
+    await assert.rejects(access(new URL(`../bastillaos/vm-gemini-4/${file}`, import.meta.url)), { code: 'ENOENT' });
+  }
+  assert.doesNotMatch(compose, /^\s*build:|cloud-localds|qemu-img|curl|ssh-keygen|unless-stopped/m);
+  assert.match(compose, /pull_policy: never/);
+  assert.match(compose, /profiles: \[manual-vm\]/);
+  assert.match(compose, /entrypoint: \["\/bin\/false"\]/);
+  assert.match(compose, /restart: "no"/);
+  assert.match(compose, /\.\/data:\/data:ro/);
 });
 
-test('VM container remains isolated and exposes SSH only on host loopback', () => {
+test('legacy VM descriptor remains isolated and exposes SSH only on host loopback', () => {
   assert.match(compose, /user: "\$\{VM_UID:-1000\}:\$\{VM_GID:-1000\}"/);
   assert.match(compose, /cap_drop:\s*\n\s+- ALL/);
   assert.match(compose, /no-new-privileges:true/);

@@ -1,17 +1,15 @@
+# Legacy container metadata only. Provisioning and guest launch are disabled.
+# Existing containers can still be inspected by container_name.
 services:
   vm-gemini-4:
     container_name: vm_gemini_4
-    build:
-      context: .
-      args:
-        VM_UID: ${VM_UID:-1000}
-        VM_GID: ${VM_GID:-1000}
-    restart: unless-stopped
+    image: debian:13-slim
+    pull_policy: never
+    profiles: [manual-vm]
+    entrypoint: ["/bin/false"]
+    restart: "no"
     init: true
     user: "${VM_UID:-1000}:${VM_GID:-1000}"
-    # Devices and KVM are optional depending on host capabilities.
-    # KVM fallback is handled in entrypoint.sh.
-
     mem_limit: 2560m
     cpus: 2
     cap_drop:
@@ -24,4 +22,4 @@ services:
     ports:
       - "127.0.0.1:2224:2222"
     volumes:
-      - ./data:/data
+      - ./data:/data:ro

@@ -13,33 +13,21 @@ python3 -m unittest discover -s ubuntu/tests
 
 Dostępne `/api/health`, `/api/observe`, `/api/tasks`. Obserwacja obejmuje rzeczywiste dane procesów, pamięci i modeli Ollama; pozostałe wymiary uczciwie zwracają `not_connected`. Zadania są zapisywane na dysku. To nie jest jeszcze pełny orkiestrator, czat ani ISO. API nasłuchuje lokalnie; nie wystawiaj bez uwierzytelnienia do Internetu.
 
-Agent **System** jest piątym, niezależnym agentem na liście. Instalator tworzy też osobne konto Linux `System` z dostępem sudo. Docelowy silnik: lokalna Ollama; obecny rejestr nie potwierdza jeszcze sesji inferencji.\n
-## Instalacja na Ubuntu (systemd)
+Agent **System** jest piątym, niezależnym agentem na liście. Nie tworzy konta Linux, nie nadaje uprawnień sudo i nie uruchamia usług automatycznie.
 
-W sklonowanym repozytorium:
+## Model i uruchamianie ręczne
 
-```bash
-sudo bash ubuntu/install-production.sh
-sudo passwd System
-```
+Jedyny standardowy model to istniejący `dolphin-llama3:8b` (uncensored). Aplikacja nie instaluje Ollamy, nie pobiera modelu i nie przełącza się na inny lub mniejszy model. Brak wymaganego modelu jest błędem konfiguracji, a nie powodem do instalacji wariantu zastępczego.
 
-Instalator tworzy **konto Linux System** z prawem sudo; druga komenda ustawia mu hasło. Osobno istnieje **agent AI System**. Wszystkich pięć daemonów uruchamia systemd, ale obecnie realizują obserwację systemu, a nie samodzielną inferencję agentów źródłowych.
-
-Aby aktywować odpowiedzi agenta System, zainstaluj Ollamę zgodnie z https://ollama.com/download/linux, następnie:
+Po przygotowaniu środowiska i uruchomieniu Ollamy przez operatora można jawnie uruchomić API poleceniem podanym wyżej i sprawdzić:
 
 ```bash
-ollama pull dolphin3:8b
-sudo systemctl restart ubuntu-ai-api.service
 curl http://127.0.0.1:8000/api/health
 curl -sS -X POST http://127.0.0.1:8000/api/agents/system/chat -H 'Content-Type: application/json' -d '{"message":"Cześć, System!"}'
-sudo systemctl status ubuntu-ai-api.service
 ```
 
-Domyślny model `dolphin3:8b` jest wariantem Dolphin 3.0 opisywanym jako uncensored. Jeśli chcesz inny model, pobierz go w Ollamie i ustaw `OLLAMA_MODEL` w `/etc/ubuntu-ai/daemon.env`. Instalator nie uruchamia niezweryfikowanego zdalnego skryptu instalacyjnego. Lokalny endpoint API nie ma uwierzytelniania: **nie wystawiaj portu 8000 do Internetu**.
+Instalatory, instalacja konta systemowego i automatyczne włączanie daemonów zostały usunięte. Ta zmiana źródeł nie usuwa istniejących danych, wag modeli ani usług z docelowej maszyny.
 
-Uwaga: konfiguracja i testy zostały zapisane w repozytorium, ale nie potwierdzono ich działania na docelowej maszynie.
-
-Model domyślny: **dolphin3:8b** (Dolphin 3.0, uncensored). Instalacja modelu: `ollama pull dolphin3:8b`.\n
 ## Lokalna konsola Python + Bash + root
 
 Uruchom w interaktywnym terminalu Ubuntu:
@@ -53,7 +41,7 @@ Polecenia z `root=True` i `root_shell()` używają sudo; wymagają autoryzacji. 
 
 ## Polecenia naturalnym językiem — edytowalne skrypty Python
 
-Po zainstalowaniu zależności `ubuntu/requirements.txt` i uruchomieniu Ollamy z modelem `dolphin3:8b`:
+Po zainstalowaniu zależności `ubuntu/requirements.txt` i uruchomieniu Ollamy z modelem `dolphin-llama3:8b`:
 
 ```bash
 PYTHONPATH=. .venv/bin/python ubuntu/natural-language-console.py
@@ -70,7 +58,7 @@ Wpisz polecenie naturalnym językiem. Ollama wygeneruje **projekt** kodu, który
 
 ## Modyfikacja źródeł kernela Linux przez Ollamę
 
-Wymagane: lokalny Git checkout źródeł Linux, Ollama z modelem `dolphin3:8b`, edytor tekstowy oraz środowisko Python projektu.
+Wymagane: lokalny Git checkout źródeł Linux, Ollama z modelem `dolphin-llama3:8b`, edytor tekstowy oraz środowisko Python projektu.
 
 ```bash
 cd /opt/ubuntu-ai
@@ -88,14 +76,3 @@ bash ubuntu/build-kernel.sh /home/System/linux
 ```
 
 Skrypt kompiluje w oddzielnym katalogu, wymaga potwierdzenia `BUILD` i nie wykonuje `make install`, `modules_install`, zmian GRUB ani restartu. Kompilacja wymaga odpowiednich pakietów i miejsca na dysku. Nie jest to modyfikacja pamięci działającego jądra ani gwarancja, że wygenerowana zmiana jest bezpieczna. Zachowaj oryginalny kernel jako opcję rozruchową; niepotwierdzone zmiany mogą uniemożliwić uruchomienie systemu.
-
-## Lokalny czat root — automatyczne wykonywanie poleceń
-
-Po zainstalowaniu Ollamy i pobraniu `dolphin3:8b`, uruchom w lokalnym interaktywnym terminalu:
-
-```bash
-cd /opt/ubuntu-ai
-sudo /opt/ubuntu-ai/.venv/bin/python ubuntu/root-chat.py
-```
-
-Wpisz polecenie po polsku. Ollama generuje komendę Bash, a sesja uruchomiona jako root wykonuje ją bez osobnego potwierdzenia każdego polecenia, pokazując komendę i rzeczywisty wynik procesu. `/exit` kończy sesję. **Uwaga:** model może wygenerować błędne lub destrukcyjne polecenie, a wykonanie następuje natychmiast. Funkcja przeznaczona wyłącznie do zaufanego lokalnego terminala; nie udostępniaj jej przez sieć i wykonaj kopię ważnych danych.

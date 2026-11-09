@@ -7,7 +7,7 @@ if ! command -v docker >/dev/null 2>&1 || ! docker compose version >/dev/null 2>
   echo "Docker with Compose is required" >&2; exit 1
 fi
 if [ ! -f "$ROOT/docker-compose.yml" ] && [ ! -f "$ROOT/compose.yaml" ]; then
-  echo "LibreChat is not installed. Run bash scripts/install-librechat-once.sh" >&2; exit 1
+  echo "LibreChat is not present at the configured LIBRECHAT_HOME. This controller does not install or update it." >&2; exit 1
 fi
 cd "$ROOT"
 case "$CMD" in

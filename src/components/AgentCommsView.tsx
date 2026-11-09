@@ -198,7 +198,7 @@ export const AgentCommsView: React.FC<AgentCommsViewProps> = ({
           <div className="flex items-center gap-2 text-slate-400 text-xs flex-wrap">
             <span className="hidden sm:inline-flex items-center gap-1.5 font-sans text-[11px] font-semibold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-3 py-1 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.15)]">
               <Sigma className="w-3.5 h-3.5 text-emerald-400" />
-              WITHOUT_NLP: OK
+              STANDARD: DOLPHIN 8B
             </span>
             <span className="text-xs text-slate-400 font-sans px-1">
               PAKIETY: <strong className="text-slate-200 font-mono font-bold">{dataStore.chat_history.length}</strong>
@@ -209,7 +209,7 @@ export const AgentCommsView: React.FC<AgentCommsViewProps> = ({
                 onClick={onTriggerInitiative}
                 disabled={isLoading}
                 className="px-3 py-1.5 bg-purple-950/80 hover:bg-purple-900 border border-purple-500/40 text-purple-200 rounded-xl cursor-pointer transition-all duration-200 flex items-center gap-1.5 disabled:opacity-40 shadow-[0_0_12px_rgba(168,85,247,0.2)] hover:shadow-[0_0_16px_rgba(168,85,247,0.35)] text-xs font-sans font-semibold active:scale-95"
-                title="Wymuś autonomiczne pytanie lub inicjatywę od agenta z Triady"
+                title="Poproś agenta o propozycję w rozmowie"
               >
                 <Sparkles className="w-3.5 h-3.5 text-purple-300" />
                 <span>Inicjatywa</span>
@@ -320,7 +320,7 @@ export const AgentCommsView: React.FC<AgentCommsViewProps> = ({
 
         <div className="flex flex-wrap items-end gap-2 border-b border-cyan-900/60 bg-cyan-950/20 px-3 py-2">
           <label className="flex min-w-56 flex-1 flex-col gap-1 text-[10px] text-cyan-200/80">
-            Misja dla Astyrii · akcja jawna, bez NLP
+            Diagnostyka Astyrii · tylko odczyt
             <select
               aria-label="Misja dla Astyrii"
               value={selectedMissionAction}
@@ -328,7 +328,7 @@ export const AgentCommsView: React.FC<AgentCommsViewProps> = ({
               disabled={isLoading}
               className="rounded border border-cyan-900 bg-slate-950 px-2 py-1.5 text-xs text-slate-100"
             >
-              {ASTYRIA_MISSION_ACTIONS.map((action) => (
+              {ASTYRIA_MISSION_ACTIONS.filter(action => ['deep_scan', 'vm_firewall_audit'].includes(action)).map((action) => (
                 <option key={action} value={action}>{ASTYRIA_MISSION_LABELS[action]}</option>
               ))}
             </select>

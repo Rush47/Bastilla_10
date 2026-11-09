@@ -29,7 +29,6 @@ Description: BastillaOS outbound API and MCP diagnostic client
 EOF
 install -m 0755 packaging/bastilla-connect/bastilla-connect "$stage/usr/bin/bastilla-connect"
 install -m 0644 packaging/bastilla-connect/bastilla-connect.service "$stage/lib/systemd/system/"
-install -m 0644 packaging/bastilla-connect/bastilla-connect.timer "$stage/lib/systemd/system/"
 install -m 0644 packaging/bastilla-connect/config.env "$stage/etc/bastilla-connect/config.env"
 chmod 0755 "$stage/DEBIAN"
 dpkg-deb --build --root-owner-group "$stage" "$out/bastilla-connect_${version}_${arch}.deb"

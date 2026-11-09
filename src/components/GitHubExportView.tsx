@@ -76,7 +76,7 @@ export const GitHubExportView: React.FC = () => {
                 <h2 className="flex items-center gap-3 text-xl font-bold text-slate-100">
                   Synchronizacja aplikacji
                   <span className="rounded border border-emerald-800 bg-emerald-950 px-2 py-0.5 text-[10px] uppercase text-emerald-400">
-                    {gitStatus?.autoSync ? 'AUTO SYNC' : 'SYNC'}
+                    TRYB RĘCZNY
                   </span>
                 </h2>
                 <p className="mt-1 text-sm text-slate-400">
@@ -110,8 +110,8 @@ export const GitHubExportView: React.FC = () => {
             <p className="text-xs text-slate-400">Odczytuję status repozytorium...</p>
           )}
           <p className="text-[11px] leading-relaxed text-slate-400">
-            Automatyczna synchronizacja odczekuje na stabilizację plików, uruchamia testy, typecheck i build,
-            a potem wysyła wyłącznie kod aplikacji. Bieżące przy starcie zmiany i lokalne dane nie są wysyłane automatycznie.
+            Automatyczna synchronizacja i wysyłanie zmian są wyłączone. Eksport kodu uruchamiasz ręcznie;
+            synchronizacja źródeł w AI Studio nie zmienia wag ani stanu modelu w Ollamie.
           </p>
           <button
             type="button"

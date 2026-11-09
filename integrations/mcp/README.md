@@ -1,35 +1,39 @@
-# BastillaOS MCP bridge (local Ollama)
+# BastillaOS MCP bridge
 
-This optional bridge exposes a **read-only** subset of the existing BastillaOS API as MCP tools. It makes no OpenAI/Gemini API calls and does not alter the main application.
+This optional bridge exposes a read-only subset of the already running BastillaOS API. It does not install dependencies, start Ollama, download models, start the web app, or synchronize source code.
 
-## Start
+## Manual start
 
-From the repository root in a Linux Codespace, run `npm run start:mcp` to start the local services and perform the MCP smoke test. This checks local reachability, not remote ChatGPT authorization. Keep the terminal open while using the services.
-
-Alternatively, start the bridge manually:
-
-On the BastillaOS host, ensure BastillaOS and Ollama are already running.
+Use an environment where the project's Node and MCP Python dependencies are already installed. Start the web application explicitly in one terminal:
 
 ```sh
-python3 -m venv .venv-mcp
-. .venv-mcp/bin/activate
-pip install -r integrations/mcp/requirements.txt
-python integrations/mcp/server.py
+npm start
 ```
 
-By default the MCP endpoint is `http://127.0.0.1:8000/mcp` and the BastillaOS API is `http://127.0.0.1:3000`. Override the latter with `BASTILLA_API_URL` if necessary.
+In another terminal, start only the MCP bridge:
+
+```sh
+npm run start:mcp
+# Equivalent: python3 integrations/mcp/server.py
+```
+
+The MCP endpoint is `http://127.0.0.1:8000/mcp`; the web API defaults to `http://127.0.0.1:3000`. `BASTILLA_API_URL` selects an already running web API. Keep both terminals open; there is no keep-alive/restart wrapper.
+
+The only standard chat model is the existing Ollama model `dolphin-llama3:8b` (uncensored). `OLLAMA_BASE_URL` must point to the Ollama host that already has it. Missing Ollama or missing 8B weights is a configuration error; no smaller model or cloud provider replaces it automatically.
 
 ## Available tools
 
-- `ollama_status`: GET /api/ollama/models
-- `agent_command`: limited diagnostics through POST /api/triad/command
+- `ollama_status`: GET `/api/ollama/models`
+- `agent_command`: limited diagnostics through POST `/api/triad/command`
 
-No shell access, arbitrary commands, file writes, or model cloud API keys are required.
+These tools do not grant shell access or write source files. Test an already running MCP listener explicitly:
+
+```sh
+BASTILLA_MCP_URL=http://127.0.0.1:8000/mcp python3 integrations/mcp/smoke_test.py
+```
+
+A successful MCP handshake verifies that listener, not model inference, an AI Studio deployment, or a ChatGPT account connection.
 
 ## Remote access
 
-**Never publish port 8000 directly.** The underlying development API does not authenticate accounts. Use an HTTPS reverse proxy with proper authentication (ideally OAuth supported by your MCP client), access controls, and rate limits before registering a remote MCP URL. A tunnel alone does not provide authentication. Do not publish the BastillaOS development server itself.
-
-## Notes
-
-This bridge does not prove that ChatGPT can use a custom MCP server on your plan; availability depends on the client and account configuration. It also does not deploy anything from GitHub to your running Google AI Studio environment. Agent chat roles are not independent autonomous workers. Chat endpoints are intentionally excluded pending a reviewed authentication and permissions design.
+Keep the listener on loopback. An external client requires a separately configured authenticated HTTPS reverse proxy, access controls and rate limits. Do not publish the development server or Ollama API directly. GitHub synchronization updates source files; it does not restart these processes or move model weights to another machine. In AI Studio, `127.0.0.1` refers to the AI Studio runtime rather than the operator's computer.

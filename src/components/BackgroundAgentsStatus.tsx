@@ -28,8 +28,8 @@ export function BackgroundAgentsStatus() {
   return (
     <section aria-label="Agenci AI w tle" className="space-y-3 rounded-xl border border-cyan-800/40 bg-slate-950/80 p-4 text-slate-100">
       <div className="flex items-center justify-between gap-2">
-        <h2 className="font-semibold text-cyan-100">Agenci AI · monitoring w tle</h2>
-        <span className="text-xs text-slate-400">{error ? 'Brak danych' : 'Kontrola co 15 s'}</span>
+        <h2 className="font-semibold text-cyan-100">Agenci AI · stan połączenia</h2>
+        <span className="text-xs text-slate-400">{error ? 'Brak danych' : data?.monitoring ? 'Odczyt co 15 s' : 'Automatyka wyłączona'}</span>
       </div>
       <div className="grid gap-2 sm:grid-cols-2">
         {(['Aria', 'Astyria', 'Alex', 'Aurelius'] as const).map(name => {
@@ -41,7 +41,7 @@ export function BackgroundAgentsStatus() {
           </div>;
         })}
       </div>
-      <p className="text-xs text-slate-500">Monitoring sprawdza wspólne połączenie z Ollama. Nie oznacza, że każdy agent prowadzi autonomiczne obliczenia.</p>
+      <p className="text-xs text-slate-500">Status dotyczy wspólnego połączenia z Ollamą. Zadania agentów i zmiany systemu nie uruchamiają się automatycznie.</p>
     </section>
   );
 }

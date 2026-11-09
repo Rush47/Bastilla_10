@@ -233,17 +233,17 @@ export const BastillaOS2View: React.FC = () => {
 
           <div className="p-4 rounded-xl bg-white border border-[#E6DCB8] shadow-xs flex flex-col justify-between">
             <div className="flex items-center justify-between text-xs text-[#736758]">
-              <span className="font-semibold uppercase tracking-wider">Ograniczenie RAM</span>
+              <span className="font-semibold uppercase tracking-wider">Standardowy model</span>
               <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-800 border border-blue-200">
                 Lokalny Linux
               </span>
             </div>
             <div className="mt-3 flex items-baseline justify-between">
-              <span className="text-2xl font-bold text-[#1A1612] font-mono tabular-nums">~5.0 GiB</span>
-              <span className="text-xs text-amber-700 font-medium">Brak qwen3:14b</span>
+              <span className="text-2xl font-bold text-[#1A1612] font-mono tabular-nums">Dolphin 8B</span>
+              <span className="text-xs text-amber-700 font-medium">Ollama</span>
             </div>
             <div className="text-[11px] text-[#8C7E6D] mt-2 border-t border-[#F0EAE1] pt-2">
-              Brak fałszywych modeli przekraczających pamięć.
+              dolphin-llama3:8b. Dostępność i załadowanie sprawdzisz w panelu modeli.
             </div>
           </div>
 

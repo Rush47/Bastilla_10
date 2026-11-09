@@ -1,8 +1,10 @@
+import { STANDARD_OLLAMA_MODEL } from './modelPolicy.ts';
+
 /**
- * Diagnostyka i rekomendacje dla lokalnej Ollamy (misja „Optymalizacja Ollamy”).
+ * Odczytowa diagnostyka istniejącej Ollamy i przypiętego modelu 8B.
  *
  * Moduł jest czysty: zbiera dane przez przekazany fetch i zwraca strukturę, a reguły
- * rekomendacji działają bez modelu językowego — misja daje użyteczny wynik także wtedy,
+ * rekomendacji działają bez modelu językowego — diagnostyka daje wynik także wtedy,
  * gdy sama Ollama nie odpowiada.
  */
 
@@ -43,7 +45,6 @@ export interface OllamaHostInfo {
 }
 
 const GB = 1024 ** 3;
-const embeddingModel = /embed|bge|minilm|nomic/i;
 
 export function formatGb(bytes: number): string {
   return `${(bytes / GB).toFixed(1)} GB`;
@@ -62,7 +63,7 @@ export async function collectOllamaDiagnostics(
     version: null,
     models: [],
     loaded: [],
-    configuredModel: host.configuredModel,
+    configuredModel: STANDARD_OLLAMA_MODEL,
     resolvedModel: null,
     tokensPerSecond: null,
     firstTokenMs: null,
@@ -98,43 +99,12 @@ export async function collectOllamaDiagnostics(
     result.error = `Nie można pobrać listy modeli: ${String(error?.message || error)}`;
   }
 
-  const chatModels = result.models.filter((model) => !embeddingModel.test(model.name));
-  const configured = host.configuredModel.trim();
-  result.resolvedModel = configured && configured.toLowerCase() !== 'auto'
-    ? configured
-    : [...chatModels].sort((a, b) => b.size - a.size)[0]?.name ?? null;
-
-  if (result.resolvedModel) {
-    // Krótki pomiar: czas do pierwszego wyniku i prędkość generowania (model jest rozgrzany wcześniej).
-    try {
-      const started = Date.now();
-      const response = await fetchImpl(`${base}/api/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: result.resolvedModel,
-          stream: false,
-          think: false,
-          keep_alive: host.keepAlive,
-          messages: [{ role: 'user', content: 'Napisz jedno zdanie po polsku o szybkości działania.' }],
-          options: { num_predict: 48, num_ctx: host.numCtx },
-        }),
-        signal,
-      });
-      if (response.ok) {
-        const data: any = await response.json();
-        result.firstTokenMs = Date.now() - started;
-        const count = Number(data?.eval_count) || 0;
-        const duration = Number(data?.eval_duration) || 0;
-        if (count > 0 && duration > 0) {
-          result.tokensPerSecond = Math.round((count / (duration / 1e9)) * 10) / 10;
-        }
-      } else if (!result.error) {
-        result.error = `Pomiar prędkości nieudany: HTTP ${response.status}`;
-      }
-    } catch (error: any) {
-      if (!result.error) result.error = `Pomiar prędkości nieudany: ${String(error?.message || error)}`;
-    }
+  // Read-only inspection: a model loaded by another client is not this app's selection.
+  result.resolvedModel = result.models.some((model) => model.name === STANDARD_OLLAMA_MODEL)
+    ? STANDARD_OLLAMA_MODEL
+    : null;
+  if (!result.resolvedModel && !result.error) {
+    result.error = `Wymagany model ${STANDARD_OLLAMA_MODEL} nie jest dostępny na wskazanym serwerze Ollamy. Nie wybrano modelu zastępczego.`;
   }
 
   try {
@@ -153,101 +123,48 @@ export async function collectOllamaDiagnostics(
 export interface OllamaRecommendation {
   agent: 'Alex' | 'Astyria' | 'Aurelius';
   text: string;
-  /** Polecenie do wykonania przez operatora (nie jest uruchamiane automatycznie). */
+  /** Opcjonalne polecenie wyłącznie odczytowe, nigdy nie uruchamiane przez diagnostykę. */
   command?: string;
 }
 
-/** Deterministyczne reguły: co poprawić, żeby Ollama działała szybciej i lepiej. */
+/** Tylko obserwacje i odczytowe kontrole; bez instalacji i zmian konfiguracji. */
 export function buildOllamaRecommendations(diag: OllamaDiagnostics): OllamaRecommendation[] {
-  const out: OllamaRecommendation[] = [];
-
   if (!diag.reachable) {
-    out.push({
+    return [{
       agent: 'Alex',
-      text: `Serwer Ollamy nie odpowiada pod ${diag.baseUrl}. Bez niego czat nie ma modelu.`,
-      command: 'npm run setup:ollama',
-    });
-    return out;
+      text: `Serwer Ollamy nie odpowiada pod ${diag.baseUrl}. Sprawdź adres i stan istniejącej usługi. Wymagany model to ${STANDARD_OLLAMA_MODEL}; instalacja ani zmiana modelu nie są wykonywane.`,
+    }];
   }
-
-  const chatModels = diag.models.filter((model) => !embeddingModel.test(model.name));
-  if (chatModels.length === 0) {
-    out.push({
+  if (!diag.models.some((model) => model.name === STANDARD_OLLAMA_MODEL)) {
+    return [{
       agent: 'Alex',
-      text: 'Ollama działa, ale nie ma pobranego żadnego modelu czatu.',
-      command: 'npm run setup:ollama',
-    });
-    return out;
+      text: `Ollama odpowiada, ale wymagany model ${STANDARD_OLLAMA_MODEL} nie jest dostępny. Inne zainstalowane modele nie będą użyte w zastępstwie. Sprawdź, czy aplikacja łączy się z właściwą instancją Ollamy.`,
+      command: 'ollama list',
+    }];
   }
-
-  const gpu = diag.loaded.some((model) => model.sizeVram > 0);
-  const speed = diag.tokensPerSecond;
-
-  if (diag.loaded.length === 0) {
-    out.push({
-      agent: 'Alex',
-      text: `Model ${diag.resolvedModel} nie jest w pamięci — pierwsza odpowiedź po przerwie będzie wolna. Rozgrzewka i keep_alive=${diag.keepAlive} utrzymują go w RAM.`,
-    });
-  } else {
-    out.push({
-      agent: 'Alex',
-      text: `Model ${diag.loaded[0].name} jest załadowany (${formatGb(diag.loaded[0].size)}, ${gpu ? 'na GPU' : 'na CPU'}), keep_alive=${diag.keepAlive}.`,
-    });
-  }
-
-  if (speed !== null) {
-    if (!gpu && speed < 4) {
-      out.push({
-        agent: 'Astyria',
-        text: `Prędkość ${speed} tokenów/s na samym CPU jest za niska dla płynnej rozmowy trzech agentów. Mniejszy model odpowiada kilka razy szybciej.`,
-        command: 'bash scripts/setup-ollama.sh llava-phi3:3.8b',
-      });
-    } else if (speed >= 15 && diag.ramGb >= 16) {
-      out.push({
-        agent: 'Astyria',
-        text: `Prędkość ${speed} tokenów/s i ${diag.ramGb} GB RAM pozwalają na większy, mądrzejszy model bez utraty płynności.`,
-        command: 'bash scripts/setup-ollama.sh gemma4:12b',
-      });
-    } else {
-      out.push({
-        agent: 'Astyria',
-        text: `Prędkość ${speed} tokenów/s (pierwsza odpowiedź w ${((diag.firstTokenMs ?? 0) / 1000).toFixed(1)} s) — konfiguracja jest dobrze dobrana do sprzętu.`,
-      });
-    }
-  } else {
-    out.push({ agent: 'Astyria', text: 'Nie udało się zmierzyć prędkości modelu — sprawdź logi Ollamy (~/.ollama/serve.log).' });
-  }
-
-  if (!gpu && diag.numCtx > 4096) {
-    out.push({
-      agent: 'Astyria',
-      text: `Okno kontekstu ${diag.numCtx} tokenów spowalnia CPU. 4096 wystarcza do rozmowy.`,
-      command: 'OLLAMA_NUM_CTX=4096',
-    });
-  }
-
-  const unusedBytes = diag.models
-    .filter((model) => model.name !== diag.resolvedModel && model.name !== diag.loaded[0]?.name && !embeddingModel.test(model.name))
-    .reduce((sum, model) => sum + model.size, 0);
-  if (unusedBytes > 5 * GB) {
+  const selected = diag.loaded.find((model) => model.name === STANDARD_OLLAMA_MODEL);
+  const out: OllamaRecommendation[] = [{
+    agent: 'Alex',
+    text: selected
+      ? `Wymagany model ${STANDARD_OLLAMA_MODEL} jest w pamięci (${formatGb(selected.size)}, ${selected.sizeVram > 0 ? 'GPU' : 'CPU'}).`
+      : `Model ${STANDARD_OLLAMA_MODEL} jest dostępny na dysku. Pierwsza wiadomość może wymagać jego wczytania; diagnostyka go nie uruchamia.`,
+    command: 'ollama ps',
+  }, {
+    agent: 'Astyria',
+    text: `Diagnostyka jest tylko odczytowa. Pamięć hosta: ${diag.ramGb} GB, rdzenie: ${diag.cpus}, kontekst: ${diag.numCtx}. Brak pomiaru generowania; ograniczenia sprzętu nie zmieniają wyboru modelu.`,
+  }];
+  if (diag.loaded.some((model) => model.name !== STANDARD_OLLAMA_MODEL)) {
     out.push({
       agent: 'Aurelius',
-      text: `Nieużywane modele zajmują ${formatGb(unusedBytes)} dysku. Usuń zbędne (ollama rm <model>), żeby uniknąć braku miejsca.`,
+      text: 'Ollama ma także inne modele w pamięci, lecz aplikacja wysyła wiadomości wyłącznie do przypiętego modelu 8B. Diagnostyka nie usuwa ani nie przełącza modeli.',
     });
   }
-
-  if (diag.baseUrl.includes('0.0.0.0') || !/^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])/.test(diag.baseUrl)) {
+  if (diag.baseUrl.includes('0.0.0.0') || !/^https?:\/\/(127\.0\.0\.1|localhost|\[::1\])(?::|\/|$)/.test(diag.baseUrl)) {
     out.push({
       agent: 'Aurelius',
-      text: `Ollama jest dostępna pod ${diag.baseUrl}, nie przez pętlę zwrotną. API Ollamy nie ma uwierzytelniania — nie wystawiaj go do sieci.`,
-    });
-  } else {
-    out.push({
-      agent: 'Aurelius',
-      text: 'Ollama słucha tylko na pętli zwrotnej (127.0.0.1) — bezpieczna konfiguracja, API Ollamy nie ma uwierzytelniania.',
+      text: `Ollama jest dostępna pod ${diag.baseUrl}, nie przez pętlę zwrotną. Sprawdź ochronę sieci i dostęp aplikacji do właściwej instancji.`,
     });
   }
-
   return out;
 }
 
@@ -256,9 +173,9 @@ export function describeOllamaDiagnostics(diag: OllamaDiagnostics): string {
   return [
     `Ollama ${diag.version ?? '?'} @ ${diag.baseUrl}`,
     `modele: ${diag.models.length ? diag.models.map((m) => `${m.name} (${formatGb(m.size)})`).join(', ') : 'brak'}`,
-    `aktywny model: ${diag.resolvedModel ?? 'brak'}`,
+    `wymagany model: ${STANDARD_OLLAMA_MODEL}; dostępny: ${diag.resolvedModel ? 'tak' : 'nie'}`,
     `w pamięci: ${diag.loaded.length ? diag.loaded.map((m) => `${m.name} (${m.sizeVram > 0 ? 'GPU' : 'CPU'})`).join(', ') : 'nic'}`,
-    `prędkość: ${diag.tokensPerSecond ?? '?'} tok/s, pierwsza odpowiedź ${diag.firstTokenMs !== null ? `${(diag.firstTokenMs / 1000).toFixed(1)} s` : '?'}`,
+    'diagnostyka tylko odczytowa: bez generowania, instalowania i zmiany modelu',
     `sprzęt: ${diag.ramGb} GB RAM, ${diag.cpus} rdzeni; keep_alive ${diag.keepAlive}, num_ctx ${diag.numCtx}`,
   ].join('\n');
 }

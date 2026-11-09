@@ -22,8 +22,7 @@ def send(agent, message):
         return 0, {"error": str(exc)}
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--allow-local", action="store_true", help="Allow template fallback; default requires model inference metadata")
-    args = parser.parse_args()
+    parser.parse_args()
     if os.environ.get("BASTILLA_LIVE_CHAT_TEST") != "1":
         sys.exit("Live chat sends messages and persists chat history. Set BASTILLA_LIVE_CHAT_TEST=1 to consent.")
     failures = 0
@@ -46,12 +45,12 @@ def main():
                 and history[pos + 1].get("tekst") == reply
                 for pos, entry in enumerate(history)
             )
-            model_reply = engine.startswith(("gemini:", "xai:", "ollama:"))
+            model_reply = engine == "ollama:dolphin-llama3:8b"
             if (status != 200 or data.get("success") is not True
                     or not isinstance(reply, str) or not reply.strip() or not persisted
-                    or (not args.allow_local and not model_reply)):
+                    or not model_reply):
                 failures += 1
-                print("FAIL: expected a persisted reply with model provenance; engine=", engine)
+                print("FAIL: expected a persisted reply from dolphin-llama3:8b; engine=", engine)
             elif index == len(PROMPTS) and not re.search(r"astronom|nieb|gwiazd|kosmos", reply, re.IGNORECASE):
                 failures += 1
                 print("FAIL: reply did not recall the topic of the previous message")

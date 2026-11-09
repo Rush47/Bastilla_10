@@ -1,86 +1,71 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import {
-  buildOllamaRecommendations,
-  collectOllamaDiagnostics,
-  describeOllamaDiagnostics,
-} from '../src/kernel/ollamaDiagnostics.ts';
+import { buildOllamaRecommendations, collectOllamaDiagnostics, describeOllamaDiagnostics } from '../src/kernel/ollamaDiagnostics.ts';
 
 const GB = 1024 ** 3;
-const json = (status, body) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
+const standard = 'dolphin-llama3:8b';
 const host = { ramGb: 8, cpus: 2, configuredModel: 'auto', keepAlive: '24h', numCtx: 4096 };
+const json = (status, body) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
 
-function router(routes) {
+function readOnlyOllama(models, loaded = []) {
   const calls = [];
-  const impl = async (url, init = {}) => {
-    calls.push({ url: String(url), body: init.body ? JSON.parse(init.body) : undefined });
-    for (const [pattern, respond] of routes) if (pattern.test(String(url))) return respond();
-    throw new Error(`unexpected ${url}`);
+  return {
+    calls,
+    impl: async (url, init = {}) => {
+      calls.push({ url: String(url), method: init.method || 'GET' });
+      assert.equal(init.method || 'GET', 'GET');
+      if (url.endsWith('/api/version')) return json(200, { version: '0.9.0' });
+      if (url.endsWith('/api/tags')) return json(200, { models });
+      if (url.endsWith('/api/ps')) return json(200, { models: loaded });
+      throw new Error(`unexpected ${url}`);
+    },
   };
-  return { impl, calls };
 }
 
-const healthyRoutes = (tokens = 40, nanos = 8_000_000_000) => [
-  [/api\/version/, () => json(200, { version: '0.9.0' })],
-  [/api\/tags/, () => json(200, { models: [
-    { name: 'qwen3.5:4b', size: 3.3 * GB },
-    { name: 'nomic-embed-text', size: 0.3 * GB },
-  ] })],
-  [/api\/chat/, () => json(200, { eval_count: tokens, eval_duration: nanos, message: { content: 'ok' } })],
-  [/api\/ps/, () => json(200, { models: [{ name: 'qwen3.5:4b', size: 3.3 * GB, size_vram: 0 }] })],
-];
-
-test('diagnostyka zbiera wersję, modele, prędkość i stan pamięci', async () => {
-  const { impl, calls } = router(healthyRoutes());
+test('diagnostics inspect installed and loaded models without inference or model substitution', async () => {
+  const { impl, calls } = readOnlyOllama([
+    { name: 'qwen3.5:4b', size: 3.3 * GB }, { name: standard, size: 4.7 * GB },
+  ], [{ name: 'qwen3.5:4b', size: 3.3 * GB, size_vram: 0 }]);
   const diag = await collectOllamaDiagnostics('http://127.0.0.1:11434/', host, impl);
   assert.equal(diag.reachable, true);
-  assert.equal(diag.version, '0.9.0');
-  assert.equal(diag.resolvedModel, 'qwen3.5:4b');
-  assert.equal(diag.tokensPerSecond, 5);
-  assert.equal(diag.loaded.length, 1);
-  const chat = calls.find((c) => c.url.includes('/api/chat'));
-  assert.equal(chat.body.keep_alive, '24h');
-  assert.match(describeOllamaDiagnostics(diag), /qwen3.5:4b/);
+  assert.equal(diag.configuredModel, standard);
+  assert.equal(diag.resolvedModel, standard);
+  assert.equal(diag.loaded[0].name, 'qwen3.5:4b');
+  assert.equal(diag.tokensPerSecond, null);
+  assert.equal(diag.firstTokenMs, null);
+  assert.equal(calls.length, 3);
+  assert.match(describeOllamaDiagnostics(diag), /wymagany model: dolphin-llama3:8b; dostępny: tak/);
+  assert.ok(buildOllamaRecommendations(diag).some((item) => /inne modele w pamięci/.test(item.text)));
 });
 
-test('brak serwera Ollamy → jedna rekomendacja z poleceniem instalacji', async () => {
-  const { impl } = router([[/./, () => { throw new TypeError('fetch failed'); }]]);
-  const diag = await collectOllamaDiagnostics('http://127.0.0.1:11434', host, impl);
+test('an unavailable Ollama produces a diagnostic, not installation instructions', async () => {
+  const diag = await collectOllamaDiagnostics('http://127.0.0.1:11434', host, async () => { throw new TypeError('fetch failed'); });
   assert.equal(diag.reachable, false);
-  const recs = buildOllamaRecommendations(diag);
-  assert.equal(recs.length, 1);
-  assert.equal(recs[0].command, 'npm run setup:ollama');
+  const recommendations = buildOllamaRecommendations(diag);
+  assert.equal(recommendations.length, 1);
+  assert.equal(recommendations[0].command, undefined);
+  assert.match(recommendations[0].text, /dolphin-llama3:8b/);
   assert.match(describeOllamaDiagnostics(diag), /BRAK POŁĄCZENIA/);
 });
 
-test('wolny model na CPU → mniejszy model; szybki z dużym RAM → większy', async () => {
-  const slow = await collectOllamaDiagnostics('http://127.0.0.1:11434', host, router(healthyRoutes(10, 5_000_000_000)).impl);
-  assert.equal(slow.tokensPerSecond, 2);
-  const slowRecs = buildOllamaRecommendations(slow);
-  assert.ok(slowRecs.some((r) => r.agent === 'Astyria' && /llava-phi3:3.8b/.test(r.command ?? '')));
-
-  const fast = await collectOllamaDiagnostics('http://127.0.0.1:11434', { ...host, ramGb: 32 }, router(healthyRoutes(200, 8_000_000_000)).impl);
-  const fastRecs = buildOllamaRecommendations(fast);
-  assert.ok(fastRecs.some((r) => /gemma4:12b/.test(r.command ?? '')));
+test('small models alone do not satisfy the standard model requirement', async () => {
+  for (const models of [[], [{ name: 'qwen2.5:0.5b', size: 0.5 * GB }]]) {
+    const { impl, calls } = readOnlyOllama(models);
+    const diag = await collectOllamaDiagnostics('http://127.0.0.1:11434', host, impl);
+    assert.equal(diag.resolvedModel, null);
+    assert.match(diag.error, /Wymagany model dolphin-llama3:8b/);
+    assert.match(buildOllamaRecommendations(diag)[0].text, /właściwą instancją/);
+    assert.ok(calls.every((call) => !call.url.endsWith('/api/chat')));
+  }
 });
 
-test('brak modeli, nieużywane duże modele i adres spoza pętli zwrotnej', async () => {
-  const empty = await collectOllamaDiagnostics('http://127.0.0.1:11434', host, router([
-    [/api\/version/, () => json(200, { version: '1' })],
-    [/api\/tags/, () => json(200, { models: [] })],
-    [/api\/ps/, () => json(200, { models: [] })],
-  ]).impl);
-  assert.equal(buildOllamaRecommendations(empty)[0].command, 'npm run setup:ollama');
-
-  const crowded = await collectOllamaDiagnostics('http://192.168.1.5:11434', host, router([
-    [/api\/version/, () => json(200, { version: '1' })],
-    [/api\/tags/, () => json(200, { models: [{ name: 'a:12b', size: 8 * GB }, { name: 'b:70b', size: 40 * GB }] })],
-    [/api\/chat/, () => json(200, { eval_count: 100, eval_duration: 5_000_000_000 })],
-    [/api\/ps/, () => json(200, { models: [] })],
-  ]).impl);
-  assert.equal(crowded.resolvedModel, 'b:70b');
-  const recs = buildOllamaRecommendations(crowded);
-  assert.ok(recs.some((r) => r.agent === 'Aurelius' && /ollama rm/.test(r.text)));
-  assert.ok(recs.some((r) => r.agent === 'Aurelius' && /nie przez pętlę zwrotną/.test(r.text)));
-  assert.ok(recs.every((r) => ['Alex', 'Astyria', 'Aurelius'].includes(r.agent)));
+test('recommendations never install, delete, select a different model or rewrite configuration', async () => {
+  const { impl } = readOnlyOllama([
+    { name: standard, size: 4.7 * GB }, { name: 'other:70b', size: 40 * GB },
+  ], [{ name: standard, size: 4.7 * GB, size_vram: 0 }]);
+  const diag = await collectOllamaDiagnostics('http://192.168.1.5:11434', { ...host, numCtx: 8192, ramGb: 32 }, impl);
+  const recommendations = buildOllamaRecommendations(diag);
+  assert.ok(recommendations.some((item) => /nie przez pętlę zwrotną/.test(item.text)));
+  assert.ok(recommendations.every((item) => !item.command || ['ollama list', 'ollama ps'].includes(item.command)));
+  assert.doesNotMatch(JSON.stringify(recommendations), /setup:|setup-|ollama pull|ollama rm|mniejszy model|większy model/);
 });
