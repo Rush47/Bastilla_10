@@ -1,0 +1,16 @@
+{
+  "id": "cyber-invaders",
+  "name": "Triad Retro Defender 2D",
+  "type": "cyber-game",
+  "version": "1.2.0",
+  "author": "Alex & Astyria",
+  "description": "Grywalna gra zręcznościowa w HTML5 Canvas: obrona rdzenia SVL przed wrogimi anomaliami pamięci.",
+  "entry": "index.html",
+  "status": "ready",
+  "created_at": "2026-10-17T22:45:00Z",
+  "files": [
+    "index.html",
+    "app.json",
+    "README.md"
+  ]
+}

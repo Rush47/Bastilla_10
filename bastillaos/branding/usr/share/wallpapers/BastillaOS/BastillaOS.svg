@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1920 1080" width="1920" height="1080">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#02050c"/>
+      <stop offset=".52" stop-color="#07121d"/>
+      <stop offset="1" stop-color="#030a11"/>
+    </linearGradient>
+    <radialGradient id="aura" cx="50%" cy="48%" r="52%">
+      <stop stop-color="#0b777d" stop-opacity=".24"/>
+      <stop offset=".48" stop-color="#087c69" stop-opacity=".09"/>
+      <stop offset="1" stop-color="#02050c" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="citadel" x1="547" y1="264" x2="1386" y2="822" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#39d6e5"/>
+      <stop offset=".52" stop-color="#43dfc4"/>
+      <stop offset="1" stop-color="#39d58d"/>
+    </linearGradient>
+    <linearGradient id="stone" x1="632" y1="438" x2="1282" y2="801" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#122a36"/>
+      <stop offset="1" stop-color="#0a1a24"/>
+    </linearGradient>
+    <linearGradient id="horizon" x1="300" y1="802" x2="1620" y2="802" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#25cad8" stop-opacity="0"/>
+      <stop offset=".5" stop-color="#41dec2" stop-opacity=".75"/>
+      <stop offset="1" stop-color="#25cad8" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="grid" width="64" height="64" patternUnits="userSpaceOnUse" patternTransform="skewY(-24)">
+      <path d="M64 0H0v64" fill="none" stroke="#6be4db" stroke-opacity=".055" stroke-width="1"/>
+    </pattern>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="9" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <g id="tower">
+      <path d="M0 154V38l24-25 24 25v116Z" fill="url(#stone)" stroke="url(#citadel)" stroke-width="3"/>
+      <path d="M16 154V81a8 8 0 0 1 16 0v73" fill="#06121a" stroke="#38d6c6" stroke-opacity=".8" stroke-width="2"/>
+      <path d="M8 48h32M8 59h32" stroke="#45dfd0" stroke-opacity=".44" stroke-width="2"/>
+    </g>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#sky)"/>
+  <rect width="1920" height="1080" fill="url(#aura)"/>
+  <path d="M0 774 480 646l438 113 481-145 521 160v306H0Z" fill="#07121b" opacity=".75"/>
+  <path d="M0 851 475 730l402 104 548-130 495 130v246H0Z" fill="#08151e"/>
+  <path d="M0 920 463 808l409 105 547-135 501 130v172H0Z" fill="#0a1921"/>
+  <path d="M0 806 477 686l405 103 540-129 498 130" fill="none" stroke="#25d3cc" stroke-opacity=".12" stroke-width="2"/>
+  <path d="M0 884 468 765l410 105 547-132 495 128" fill="none" stroke="#27d8b7" stroke-opacity=".1" stroke-width="2"/>
+  <path d="M0 960 460 844l417 108 548-131 495 129" fill="none" stroke="#35d5a8" stroke-opacity=".08" stroke-width="2"/>
+  <rect y="700" width="1920" height="380" fill="url(#grid)" opacity=".7"/>
+
+  <g fill="#a2f9ed" opacity=".58">
+    <circle cx="300" cy="186" r="2"/><circle cx="465" cy="293" r="1.5"/><circle cx="1496" cy="191" r="2"/>
+    <circle cx="1612" cy="369" r="1.5"/><circle cx="1318" cy="113" r="1.5"/><circle cx="713" cy="164" r="1.5"/>
+    <circle cx="1155" cy="208" r="2"/><circle cx="1704" cy="570" r="1.5"/><circle cx="253" cy="548" r="1.5"/>
+    <circle cx="1379" cy="283" r="1.5"/><circle cx="574" cy="491" r="1.5"/>
+  </g>
+
+  <g transform="translate(0 8)" filter="url(#glow)" opacity=".24" fill="none" stroke="#27e1d2" stroke-width="5">
+    <path d="M546 735V489l97-75 70 58 89-139 89 139 70-58 97 75v246Z"/>
+  </g>
+  <g>
+    <path d="M546 735V489l97-75 70 58 89-139 89 139 70-58 97 75v246Z" fill="url(#stone)" stroke="url(#citadel)" stroke-width="4"/>
+    <path d="M584 735V507l59-46v274ZM685 735V489l117-177 117 177v246Z" fill="#102531" stroke="#37d7c9" stroke-opacity=".62" stroke-width="2"/>
+    <path d="M919 735V489l117-177 117 177v246Z" fill="#0d202b" stroke="#35d5aa" stroke-opacity=".7" stroke-width="2"/>
+    <path d="M1136 735V461l59 46v228Z" fill="#102531" stroke="#35d5aa" stroke-opacity=".62" stroke-width="2"/>
+    <path d="M625 735V543l18-16 18 16v192M1196 735V543l18-16 18 16v192" fill="#08151e" stroke="#36d8c8" stroke-width="2"/>
+    <path d="M802 735V575a117 117 0 0 1 234 0v160" fill="#06131c" stroke="#43dfc0" stroke-width="3"/>
+    <path d="M919 735V587a1 1 0 0 1 2 0v148" stroke="#3bdcc9" stroke-opacity=".45" stroke-width="2"/>
+    <path d="M565 500h151M1161 500h151M705 455l97-147 97 147M936 455l100-147 100 147" fill="none" stroke="#78f5e2" stroke-opacity=".55" stroke-width="2"/>
+    <path d="M547 735h764M519 752h820M482 770h894" fill="none" stroke="url(#citadel)" stroke-opacity=".56" stroke-width="2"/>
+    <path d="M756 793h326" fill="none" stroke="url(#horizon)" stroke-width="2"/>
+  </g>
+
+  <g fill="none" stroke="#42ddce" stroke-opacity=".65" stroke-width="2">
+    <path d="M960 139v74M921 176h78M960 128l-8 12 8 12 8-12Z"/>
+    <path d="M390 665h82l44-44M1448 607h-66l-39 39"/>
+    <circle cx="516" cy="621" r="4" fill="#42ddce"/><circle cx="1343" cy="646" r="4" fill="#42ddce"/>
+    <path d="M392 667v28h57M1448 609v-27h-57"/>
+  </g>
+
+  <g font-family="Inter, 'Segoe UI', sans-serif" text-anchor="middle">
+    <text x="960" y="868" fill="#f1fbfa" font-size="48" font-weight="600" letter-spacing="14">BASTILLAOS</text>
+    <text x="960" y="912" fill="#72dccc" font-size="15" font-weight="500" letter-spacing="7">A QUIETLY STRONG DIGITAL CITADEL</text>
+  </g>
+  <path d="M821 936h278" stroke="url(#citadel)" stroke-width="2" opacity=".68"/>
+  <path d="M0 0h1920v1080H0Z" fill="none" stroke="#51e3d3" stroke-opacity=".08" stroke-width="2"/>
+</svg>

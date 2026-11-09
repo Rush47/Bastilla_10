@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HyperCom — Astra_1</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      background: #07111f;
+      color: #e2e8f0;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: radial-gradient(ellipse at top, #102641, #07111f 55%); }
+    main { width: min(980px, 100%); margin: 0 auto; padding: 32px 20px; }
+    header, section, article { border: 1px solid #26384d; background: #0b1726eF; border-radius: 12px; }
+    header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 22px; }
+    h1, h2, p { margin: 0; }
+    h1 { color: #67e8f9; font-size: clamp(20px, 4vw, 30px); letter-spacing: .04em; }
+    h2 { font-size: 15px; }
+    .subtitle, .meta, .empty { color: #94a3b8; }
+    .subtitle { margin-top: 6px; font-size: 13px; }
+    .badge { border: 1px solid #b45309; border-radius: 999px; padding: 7px 11px; color: #fcd34d; background: #451a0340; font-size: 11px; font-weight: 700; }
+    .notice { margin: 14px 0; border: 1px solid #854d0e; border-radius: 8px; padding: 11px 13px; color: #fde68a; background: #42200666; font-size: 12px; line-height: 1.5; }
+    .layout { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(260px, .8fr); gap: 14px; margin-top: 14px; }
+    section { padding: 18px; }
+    .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 14px; }
+    .count { color: #67e8f9; font: 12px ui-monospace, monospace; }
+    #messages { display: grid; gap: 10px; }
+    article { padding: 13px; background: #07111f; }
+    article.incoming { border-color: #155e75; }
+    article.outgoing { border-color: #3730a3; }
+    .message-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; }
+    .route { color: #cbd5e1; font: 12px ui-monospace, monospace; overflow-wrap: anywhere; }
+    .status { color: #a5f3fc; font-size: 10px; text-transform: uppercase; }
+    .content { margin: 10px 0; line-height: 1.5; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .meta { font-size: 10px; }
+    .empty { padding: 24px 8px; text-align: center; font-size: 13px; }
+    form { display: grid; gap: 10px; }
+    label { display: grid; gap: 6px; color: #cbd5e1; font-size: 12px; }
+    input, textarea { width: 100%; border: 1px solid #334155; border-radius: 7px; padding: 10px; color: #f8fafc; background: #07111f; font: inherit; }
+    textarea { min-height: 112px; resize: vertical; }
+    button { border: 1px solid #0e7490; border-radius: 7px; padding: 9px 12px; color: #cffafe; background: #164e63; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+    button:hover { background: #155e75; }
+    button.secondary { border-color: #475569; color: #cbd5e1; background: #1e293b; }
+    button.reply { padding: 6px 9px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; }
+    #notice { min-height: 18px; color: #a5f3fc; font-size: 12px; }
+    @media (max-width: 700px) { .layout { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>HYPERCOM <span style="color:#cbd5e1">/ ASTRA_1</span></h1>
+        <p class="subtitle">Lokalny rejestr wiadomości · panel transmisji SVL</p>
+      </div>
+      <span class="badge">TRYB LOKALNY — BEZ ŁĄCZNOŚCI ZEWNĘTRZNEJ</span>
+    </header>
+
+    <p class="notice">
+      Ten moduł nie jest połączony ze statkiem Astra_1 ani z globalną siecią.
+      Wiadomości przychodzące można dodać jako testowe; odpowiedzi i broadcasty
+      są zapisywane lokalnie jako oczekujące i nie są wysyłane poza aplikację.
+    </p>
+
+    <div class="layout">
+      <section aria-labelledby="inbox-title">
+        <div class="section-heading">
+          <h2 id="inbox-title">Rejestr transmisji</h2>
+          <span id="message-count" class="count">0</span>
+        </div>
+        <div id="messages" aria-live="polite"></div>
+        <p id="empty" class="empty">Brak zapisanych transmisji.</p>
+      </section>
+
+      <section aria-labelledby="compose-title">
+        <div class="section-heading">
+          <h2 id="compose-title">Nadaj wiadomość</h2>
+        </div>
+        <form id="compose-form">
+          <label>
+            Odbiorca
+            <input id="recipient" maxlength="120" value="GLOBAL_BROADCAST_QUEUE" readonly>
+          </label>
+          <label>
+            Treść
+            <textarea id="content" maxlength="4000" required placeholder="Wpisz wiadomość do lokalnej kolejki…"></textarea>
+          </label>
+          <div class="actions">
+            <button type="submit">Dodaj do kolejki</button>
+            <button type="button" class="secondary" id="test-incoming">Dodaj testową wiadomość przychodzącą</button>
+          </div>
+          <p id="notice" role="status"></p>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const API_URL = '/api/hyper-com/transmissions';
+    const messagesEl = document.getElementById('messages');
+    const emptyEl = document.getElementById('empty');
+    const noticeEl = document.getElementById('notice');
+    let transmissions = [];
+    let replyTo = null;
+
+    function addText(parent, tag, className, text) {
+      const element = document.createElement(tag);
+      if (className) element.className = className;
+      element.textContent = text;
+      parent.append(element);
+      return element;
+    }
+
+    function render() {
+      messagesEl.replaceChildren();
+      emptyEl.hidden = transmissions.length > 0;
+      document.getElementById('message-count').textContent = `${transmissions.length} / 100`;
+      for (const item of transmissions) {
+        const card = document.createElement('article');
+        card.className = item.direction;
+        const top = document.createElement('div');
+        top.className = 'message-top';
+        addText(top, 'span', 'route', `${item.direction === 'incoming' ? item.sender : 'LOKALNIE'} → ${item.recipient}`);
+        addText(top, 'span', 'status', `${item.status}${item.in_reply_to ? ` · odpowiedź na #${item.in_reply_to}` : ''}`);
+        card.append(top);
+        addText(card, 'p', 'content', item.content);
+        addText(card, 'p', 'meta', `#${item.id} · ${new Date(item.created_at).toLocaleString('pl-PL')}`);
+        if (item.direction === 'incoming') {
+          const button = addText(card, 'button', 'reply', 'Odpowiedz');
+          button.type = 'button';
+          button.addEventListener('click', () => {
+            replyTo = item.id;
+            document.getElementById('recipient').value = item.sender;
+            document.getElementById('compose-title').textContent = `Odpowiedź do ${item.sender}`;
+            document.getElementById('content').focus();
+          });
+        }
+        messagesEl.append(card);
+      }
+    }
+
+    async function requestJson(url, options) {
+      const response = await fetch(url, { cache: 'no-store', ...options });
+      const result = await response.json();
+      if (!response.ok || result.success !== true) {
+        throw new Error(result.error || `Błąd serwera (HTTP ${response.status}).`);
+      }
+      return result;
+    }
+
+    async function refresh() {
+      try {
+        const result = await requestJson(API_URL);
+        transmissions = result.transmissions;
+        render();
+      } catch (error) {
+        noticeEl.textContent = `Nie można pobrać rejestru: ${error.message}`;
+      }
+    }
+
+    document.getElementById('compose-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const content = document.getElementById('content').value.trim();
+      if (!content) return;
+      const request = replyTo
+        ? { action: 'reply', replyTo, content }
+        : { action: 'broadcast', content };
+      try {
+        await requestJson(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(request),
+        });
+        document.getElementById('content').value = '';
+        document.getElementById('recipient').value = 'GLOBAL_BROADCAST_QUEUE';
+        document.getElementById('compose-title').textContent = 'Nadaj wiadomość';
+        replyTo = null;
+        noticeEl.textContent = 'Wiadomość zapisana w lokalnej kolejce; nie została wysłana na zewnątrz.';
+        await refresh();
+      } catch (error) {
+        noticeEl.textContent = `Nie udało się zapisać wiadomości: ${error.message}`;
+      }
+    });
+
+    document.getElementById('test-incoming').addEventListener('click', async () => {
+      try {
+        await requestJson(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'receive',
+            sender: 'Astra_1 (TEST)',
+            content: 'Testowa wiadomość przychodząca — nie pochodzi z rzeczywistego statku.',
+          }),
+        });
+        noticeEl.textContent = 'Dodano oznaczoną wiadomość testową do lokalnego rejestru.';
+        await refresh();
+      } catch (error) {
+        noticeEl.textContent = `Nie udało się dodać wiadomości: ${error.message}`;
+      }
+    });
+
+    void refresh();
+    window.setInterval(() => void refresh(), 5000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+services:
+  vm-gemini-4:
+    container_name: vm_gemini_4
+    build:
+      context: .
+      args:
+        VM_UID: ${VM_UID:-1000}
+        VM_GID: ${VM_GID:-1000}
+    restart: unless-stopped
+    init: true
+    user: "${VM_UID:-1000}:${VM_GID:-1000}"
+    # Devices and KVM are optional depending on host capabilities.
+    # KVM fallback is handled in entrypoint.sh.
+
+    mem_limit: 2560m
+    cpus: 2
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:size=32m
+    ports:
+      - "127.0.0.1:2224:2222"
+    volumes:
+      - ./data:/data

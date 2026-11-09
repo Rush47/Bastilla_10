@@ -1,0 +1,13 @@
+# Full KDE Software Compilation, including the Plasma desktop and applications.
+kde-full
+sddm
+plasma-nm
+plasma-pa
+
+# End-user applications.
+firefox-esr
+chromium
+kate
+dolphin
+konsole
+locales-all

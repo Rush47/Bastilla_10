@@ -1,0 +1,8 @@
+# Firmware packages are in the non-free-firmware archive component.
+firmware-linux-nonfree
+firmware-iwlwifi
+firmware-realtek
+firmware-atheros
+firmware-brcm80211
+firmware-mediatek
+firmware-libertas

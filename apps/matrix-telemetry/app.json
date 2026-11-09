@@ -1,0 +1,16 @@
+{
+  "id": "matrix-telemetry",
+  "name": "Kwantowa Matryca Telemetrii",
+  "type": "html5-web",
+  "version": "1.0.0",
+  "author": "Astyria",
+  "description": "Wizualizacja stanu jądra SVL, dynamiczne oscylatory kwantowe, zużycie pamięci i strumień pakietów w czasie rzeczywistym.",
+  "entry": "index.html",
+  "status": "ready",
+  "created_at": "2026-10-17T22:30:00Z",
+  "files": [
+    "index.html",
+    "app.json",
+    "README.md"
+  ]
+}

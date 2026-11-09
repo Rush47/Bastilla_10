@@ -1,0 +1,18 @@
+# Local credentials and environment-specific configuration
+.env*
+.github_credentials.json
+
+# Build outputs and installed dependencies
+node_modules/
+dist/
+build/
+coverage/
+*.log
+*.tmp
+__pycache__/
+*.py[cod]
+svl_kernel.py.lock
+
+# Writable local runtime state
+exports/svl_datastore.json
+exports/*.tmp

@@ -1,0 +1,27 @@
+#!/bin/sh
+set -eu
+
+lb config noauto \
+	--mode debian \
+	--system live \
+	--distribution trixie \
+	--debian-installer-distribution trixie \
+	--architecture amd64 \
+	--linux-flavours amd64 \
+	--archive-areas "main contrib non-free non-free-firmware" \
+	--binary-image iso-hybrid \
+	--debian-installer live \
+	--debian-installer-gui true \
+	--firmware-binary true \
+	--firmware-chroot true \
+	--apt-recommends true \
+	--security true \
+	--updates true \
+	--memtest none \
+	--checksums sha256 \
+	--image-name bastillaos-13.7-amd64 \
+	--iso-application "BastillaOS Debian 13.7 Live" \
+	--iso-publisher BastillaOS \
+	--iso-volume BASTILLAOS_13_7 \
+	--bootappend-live "boot=live components locales=pl_PL.UTF-8 keyboard-layouts=pl" \
+	"$@"

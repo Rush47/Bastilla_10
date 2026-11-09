@@ -1,0 +1,12 @@
+{
+  "name": "SVL System - Bastilla OS",
+  "description": "Local web application for the SVL system kernel, Bastilla OS, structured Alex, Astyria and Aurelius commands, Gemini chat, and application management.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API",
+    "GEMINI_CHAT",
+    "STRUCTURED_TRIAD_COMMANDS",
+    "LOCAL_KERNEL_STATE",
+    "APPLICATION_MANAGEMENT"
+  ]
+}

@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bastilla OS 2 — Pulpit Operacyjny</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --ivory-bg: #FAF7F0;
+      --ivory-surface: #FFFFFF;
+      --ivory-surface-alt: #F4EFE6;
+      --ivory-border: #E6DCB8;
+      --gold-primary: #C5A059;
+      --gold-deep: #997A3D;
+      --gold-light: #F7E7B4;
+      --obsidian-dark: #1A1612;
+      --obsidian-surface: #241E18;
+      --text-main: #2A241E;
+      --text-muted: #736758;
+    }
+    body {
+      background-color: var(--ivory-bg);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    .font-tabular {
+      font-variant-numeric: tabular-nums;
+    }
+    .gold-gradient {
+      background: linear-gradient(135deg, #DFB96C 0%, #C5A059 50%, #997A3D 100%);
+    }
+    .gold-badge {
+      background: linear-gradient(135deg, #FBF4DE 0%, #F4E5BD 100%);
+      border: 1px solid #D9C38B;
+      color: #7A5B18;
+    }
+    .gold-border-glow:focus, .gold-border-glow:hover {
+      border-color: #C5A059;
+      box-shadow: 0 0 0 2px rgba(197, 160, 89, 0.25);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-[#EEDCA6] selection:text-[#382B14]">
+  <!-- Top Navigation / Header -->
+  <header class="sticky top-0 z-30 border-b border-[#E6DCB8] bg-[#FAF7F0]/90 backdrop-blur-md px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-sm">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-lg gold-gradient flex items-center justify-center text-white shadow-sm ring-1 ring-[#B38F3F]/30">
+        <!-- Sentinel Double Saber Sigil -->
+        <svg class="w-6 h-6 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 2v20M8 7l8 10M16 7L8 17M6 12h12" />
+        </svg>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="text-base font-bold tracking-tight text-[#1A1612]">BASTILLA OS 2</h1>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded gold-badge tracking-wider">JEDI SENTINEL EDITION</span>
+        </div>
+        <p class="text-xs text-[#736758]">Deterministyczny pulpit operacyjny · Sprawdzalne zadania i rzeczywiste artefakty</p>
+      </div>
+    </div>
+
+    <!-- Actions & Server Ping -->
+    <div class="flex items-center gap-3">
+      <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#F4EFE6] border border-[#E6DCB8] text-xs">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="text-[#594E3F] font-medium" id="serverStatusLabel">Serwer Jądra: Sprawdzanie…</span>
+      </div>
+      <button onclick="openNewTaskModal()" class="px-3.5 py-1.5 rounded-md gold-gradient text-white text-xs font-semibold hover:brightness-105 active:scale-95 transition shadow-sm flex items-center gap-1.5">
+        <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+        </svg>
+        <span>Nowe Zadanie Agenta</span>
+      </button>
+      <button onclick="refreshData()" class="p-1.5 rounded-md border border-[#E6DCB8] bg-white text-[#736758] hover:text-[#1A1612] hover:bg-[#F4EFE6] transition" title="Odśwież dane">
+        <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content Layout -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+    <!-- Telemetry Strip -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- Active Tasks Card -->
+      <div class="p-4 rounded-xl bg-white border border-[#E6DCB8] shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-[#736758]">
+          <span class="font-medium uppercase tracking-wider">Zadania Agentów</span>
+          <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">Rejestr Fizyczny</span>
+        </div>
+        <div class="mt-3 flex items-baseline justify-between">
+          <div class="text-3xl font-extrabold text-[#1A1612] font-tabular" id="totalTasksCount">—</div>
+          <div class="text-xs space-x-2 text-[#736758]">
+            <span class="text-emerald-700 font-semibold font-tabular" id="completedTasksCount">0 ukończono</span>
+            <span class="text-amber-700 font-semibold font-tabular" id="runningTasksCount">0 w toku</span>
+          </div>
+        </div>
+        <p class="text-[11px] text-[#8C7E6D] mt-2 border-t border-[#F0EAE1] pt-2">Każde zadanie "completed" posiada zweryfikowany plik na dysku.</p>
+      </div>
+
+      <!-- RAM & Host Limits -->
+      <div class="p-4 rounded-xl bg-white border border-[#E6DCB8] shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-[#736758]">
+          <span class="font-medium uppercase tracking-wider">Zasoby Pamięci Kontenera</span>
+          <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-800 border border-blue-200">Rzeczywisty RAM</span>
+        </div>
+        <div class="mt-3">
+          <div class="text-2xl font-bold text-[#1A1612] font-tabular" id="ramMetric">~5.0 GiB Całkowite</div>
+          <div class="w-full bg-[#EFE8DC] h-2 rounded-full overflow-hidden mt-2">
+            <div id="ramBar" class="bg-[#C5A059] h-full transition-all duration-500" style="width: 60%"></div>
+          </div>
+        </div>
+        <p class="text-[11px] text-[#8C7E6D] mt-2 border-t border-[#F0EAE1] pt-2">Zakaz modeli &gt;4 GiB (brak fałszywego qwen3:14b).</p>
+      </div>
+
+      <!-- Ollama Status -->
+      <div class="p-4 rounded-xl bg-white border border-[#E6DCB8] shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-[#736758]">
+          <span class="font-medium uppercase tracking-wider">Silnik Modeli Ollama</span>
+          <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold" id="ollamaBadge">Sprawdzanie</span>
+        </div>
+        <div class="mt-3">
+          <div class="text-sm font-bold text-[#1A1612]" id="ollamaStatusText">Odpytywanie API…</div>
+          <div class="text-xs text-[#736758] mt-1" id="ollamaModelCount">Zainstalowane modele: 0</div>
+        </div>
+        <p class="text-[11px] text-[#8C7E6D] mt-2 border-t border-[#F0EAE1] pt-2">HTTP 200 JSON – brak przechwytywania przez proxy.</p>
+      </div>
+
+      <!-- Applications Directory -->
+      <div class="p-4 rounded-xl bg-white border border-[#E6DCB8] shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-[#736758]">
+          <span class="font-medium uppercase tracking-wider">Aplikacje w Studio</span>
+          <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">Katalog apps/</span>
+        </div>
+        <div class="mt-3 flex items-baseline justify-between">
+          <div class="text-3xl font-extrabold text-[#1A1612] font-tabular" id="appsCount">—</div>
+          <a href="/api/apps/preview/bastilla_os_2/" target="_blank" class="text-xs text-[#997A3D] hover:underline font-semibold flex items-center gap-1">
+            <span>Otwórz w nowej karcie</span>
+            <svg class="w-3.5 h-3.5 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6M15 3h6v6M10 14L21 3"/></svg>
+          </a>
+        </div>
+        <p class="text-[11px] text-[#8C7E6D] mt-2 border-t border-[#F0EAE1] pt-2">Zapis pliku automatycznie tworzy brakujący katalog.</p>
+      </div>
+    </section>
+
+    <!-- Main Workspace Tabs / Sections -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Left 2 Cols: Real Agent Task Registry -->
+      <section class="lg:col-span-2 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#E6DCB8] pb-3">
+          <div>
+            <h2 class="text-base font-bold text-[#1A1612] flex items-center gap-2">
+              <span>Rejestr Zadań Agentów Triady</span>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-[#EFE8DC] text-[#736758] font-normal font-tabular" id="registryFilterCount">4 zadania</span>
+            </h2>
+            <p class="text-xs text-[#736758]">Wszystkie zadania ze ścisłą weryfikacją fizycznych artefaktów na dysku</p>
+          </div>
+
+          <!-- Status Filters -->
+          <div class="flex items-center gap-1 bg-[#F4EFE6] p-1 rounded-lg border border-[#E6DCB8] text-xs">
+            <button onclick="setTaskFilter('all')" id="filter-all" class="px-2.5 py-1 rounded font-medium bg-white shadow-xs text-[#1A1612]">Wszystkie</button>
+            <button onclick="setTaskFilter('running')" id="filter-running" class="px-2.5 py-1 rounded font-medium text-[#736758] hover:text-[#1A1612]">W toku</button>
+            <button onclick="setTaskFilter('completed')" id="filter-completed" class="px-2.5 py-1 rounded font-medium text-[#736758] hover:text-[#1A1612]">Ukończone</button>
+            <button onclick="setTaskFilter('failed')" id="filter-failed" class="px-2.5 py-1 rounded font-medium text-[#736758] hover:text-[#1A1612]">Błędy/Przerwane</button>
+          </div>
+        </div>
+
+        <!-- Task List Container -->
+        <div id="taskList" class="space-y-3">
+          <div class="p-8 text-center text-xs text-[#736758] bg-white rounded-xl border border-[#E6DCB8]">Ładowanie zadań agentów…</div>
+        </div>
+      </section>
+
+      <!-- Right 1 Col: Quick Terminal & Scaffolding Controls -->
+      <section class="space-y-6">
+        <!-- System Grounding Principles -->
+        <div class="p-5 rounded-xl bg-white border border-[#E6DCB8] shadow-sm space-y-3">
+          <div class="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#997A3D]">
+            <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <span>Zasady Uziemienia Rzeczywistego</span>
+          </div>
+          <ul class="text-xs text-[#594E3F] space-y-2 leading-relaxed">
+            <li class="flex items-start gap-2">
+              <span class="text-[#C5A059] font-bold">✓</span>
+              <span><strong>Ścisłe artefakty:</strong> Zadanie ukończone (`completed`) wymaga fizycznego pliku na dysku (np. w <code>apps/</code> lub <code>exports/</code>).</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-[#C5A059] font-bold">✓</span>
+              <span><strong>Aktywny wykonawca:</strong> Stan `running` istnieje wyłącznie w asyście aktywnego wątku i kontrolera AbortController.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-[#C5A059] font-bold">✓</span>
+              <span><strong>Brak halucynacji:</strong> Wyeliminowano fikcyjne rdzenie orbitalne, zmyślone fundusze bankowe i udawane modele qwen3:14b na 5 GiB RAM.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-[#C5A059] font-bold">✓</span>
+              <span><strong>Repozytorium Git:</strong> Polecenia w terminalu uruchamiają się w katalogu roboczym repozytorium jądra (<code>/app/applet</code>).</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Terminal Quick Executor -->
+        <div class="p-5 rounded-xl bg-[#241E18] text-[#F4EFE6] border border-[#3E342B] shadow-sm space-y-3">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono font-bold text-[#EEDCA6] flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-[#C5A059]"></span>
+              <span>Terminal Jądra Git / Powłoka</span>
+            </span>
+            <span class="text-[10px] text-[#A69786] font-mono">root@bastilla</span>
+          </div>
+          <div class="flex gap-2">
+            <input
+              type="text"
+              id="terminalInput"
+              placeholder="np. sh git status lub list"
+              value="sh git status"
+              class="flex-1 px-3 py-1.5 rounded bg-[#181410] border border-[#4D4136] text-xs font-mono text-white focus:outline-none focus:border-[#C5A059]"
+            />
+            <button
+              onclick="executeTerminalCommand()"
+              id="terminalBtn"
+              class="px-3 py-1.5 rounded gold-gradient text-white text-xs font-semibold hover:brightness-105 active:scale-95 transition"
+            >
+              Wykonaj
+            </button>
+          </div>
+          <pre id="terminalOutput" class="p-3 rounded bg-[#15120E] border border-[#352C24] text-[11px] font-mono text-[#D4C8B8] max-h-48 overflow-y-auto whitespace-pre-wrap">Gotowy do wykonania polecenia.</pre>
+        </div>
+
+        <!-- Apps List in Workspace -->
+        <div class="p-5 rounded-xl bg-white border border-[#E6DCB8] shadow-sm space-y-3">
+          <div class="flex items-center justify-between border-b border-[#F0EAE1] pb-2">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-[#1A1612]">Zainstalowane Aplikacje</h3>
+            <span class="text-xs text-[#736758] font-tabular" id="appsCountBadge">0</span>
+          </div>
+          <div id="appsList" class="space-y-2 max-h-60 overflow-y-auto text-xs">
+            <div class="text-[#8C7E6D]">Wczytywanie listy aplikacji…</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- New Task Modal -->
+  <div id="newTaskModal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl border border-[#E6DCB8] max-w-lg w-full p-6 shadow-xl space-y-4">
+      <div class="flex items-center justify-between border-b border-[#F0EAE1] pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-7 h-7 rounded-md gold-gradient flex items-center justify-center text-white">
+            <svg class="w-4 h-4 fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4"/></svg>
+          </div>
+          <h3 class="text-sm font-bold text-[#1A1612]">Zleć Rzeczywiste Zadanie Agentowi</h3>
+        </div>
+        <button onclick="closeNewTaskModal()" class="text-[#8C7E6D] hover:text-[#1A1612]">✕</button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-medium text-[#594E3F] mb-1">Wykonawca w Triadzie</label>
+          <select id="taskAgent" class="w-full px-3 py-2 rounded-lg border border-[#D9C38B] bg-[#FAF7F0] text-[#1A1612] focus:outline-none focus:border-[#C5A059]">
+            <option value="Astyria">Astyria (Hipernadzorca aplikacji i samoleczenie)</option>
+            <option value="Alex">Alex (Infrastruktura i operacje na plikach)</option>
+            <option value="Aurelius">Aurelius (Integralność baz SQLite i audyty)</option>
+            <option value="Aria">Aria (Weryfikacja modeli i protokoły)</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-medium text-[#594E3F] mb-1">Typ Działania (z artefaktem na dysku)</label>
+          <select id="taskActionType" onchange="handleActionTypeChange()" class="w-full px-3 py-2 rounded-lg border border-[#D9C38B] bg-[#FAF7F0] text-[#1A1612] focus:outline-none focus:border-[#C5A059]">
+            <option value="audit_system_integrity">Audyt integralności jądra (tworzy exports/system_integrity_report.json)</option>
+            <option value="scaffold_app">Inicjalizacja/audyt aplikacji w apps/ (tworzy app.json)</option>
+            <option value="write_app_file">Zapis bezpiecznego pliku w apps/ (tworzy katalog i manifest)</option>
+            <option value="generic_diag">Diagnostyka systemowa (tworzy raport diagnostyczny w exports/)</option>
+          </select>
+        </div>
+
+        <div id="appTargetGroup" class="hidden">
+          <label class="block font-medium text-[#594E3F] mb-1">Identyfikator Aplikacji</label>
+          <input type="text" id="taskAppId" value="bastilla_os_2" class="w-full px-3 py-2 rounded-lg border border-[#D9C38B] bg-[#FAF7F0] text-[#1A1612]" />
+        </div>
+
+        <div>
+          <label class="block font-medium text-[#594E3F] mb-1">Tytuł Zadania</label>
+          <input type="text" id="taskTitle" value="Audyt integralności jądra i katalogów" class="w-full px-3 py-2 rounded-lg border border-[#D9C38B] bg-[#FAF7F0] text-[#1A1612]" />
+        </div>
+
+        <div>
+          <label class="block font-medium text-[#594E3F] mb-1">Opis Zadania</label>
+          <textarea id="taskDesc" rows="2" class="w-full px-3 py-2 rounded-lg border border-[#D9C38B] bg-[#FAF7F0] text-[#1A1612]">Weryfikacja fizycznych ścieżek na dysku, struktur aplikacji i rejestru zadań.</textarea>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-[#F0EAE1]">
+        <button onclick="closeNewTaskModal()" class="px-3.5 py-1.5 rounded-lg border border-[#D9C38B] text-[#736758] hover:bg-[#F4EFE6] text-xs">Anuluj</button>
+        <button onclick="submitNewTask()" id="submitTaskBtn" class="px-4 py-1.5 rounded-lg gold-gradient text-white text-xs font-semibold hover:brightness-105 active:scale-95 transition">Uruchom Wykonawcę</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Client Logic -->
+  <script>
+    let currentFilter = 'all';
+    let allTasks = [];
+
+    async function checkServerHealth() {
+      try {
+        const res = await fetch('/api/kernel/state');
+        if (res.ok) {
+          document.getElementById('serverStatusLabel').innerText = 'Jądro: Aktywne (v9.0.0)';
+        } else {
+          document.getElementById('serverStatusLabel').innerText = 'Jądro: Odpowiedź HTTP ' + res.status;
+        }
+      } catch (e) {
+        document.getElementById('serverStatusLabel').innerText = 'Jądro: Błąd połączenia';
+      }
+    }
+
+    async function loadTasks() {
+      try {
+        const res = await fetch('/api/agent-tasks');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        allTasks = data.tasks || [];
+        renderTasks();
+        updateTaskMetrics(data.stats);
+      } catch (err) {
+        document.getElementById('taskList').innerHTML = `
+          <div class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs">
+            Błąd pobierania rejestru zadań: ${err.message}. Serwer jądra uruchamia rejestr zadań.
+          </div>
+        `;
+      }
+    }
+
+    function updateTaskMetrics(stats) {
+      if (!stats) return;
+      document.getElementById('totalTasksCount').innerText = stats.total ?? allTasks.length;
+      document.getElementById('completedTasksCount').innerText = (stats.completed ?? 0) + ' ukończono';
+      document.getElementById('runningTasksCount').innerText = (stats.running ?? 0) + ' w toku';
+      document.getElementById('registryFilterCount').innerText = `${allTasks.length} zadań`;
+    }
+
+    function setTaskFilter(filter) {
+      currentFilter = filter;
+      ['all', 'running', 'completed', 'failed'].forEach(f => {
+        const el = document.getElementById('filter-' + f);
+        if (el) {
+          if (f === filter) {
+            el.className = 'px-2.5 py-1 rounded font-medium bg-white shadow-xs text-[#1A1612]';
+          } else {
+            el.className = 'px-2.5 py-1 rounded font-medium text-[#736758] hover:text-[#1A1612]';
+          }
+        }
+      });
+      renderTasks();
+    }
+
+    function renderTasks() {
+      const listEl = document.getElementById('taskList');
+      let filtered = allTasks;
+      if (currentFilter !== 'all') {
+        filtered = allTasks.filter(t => t.status === currentFilter);
+      }
+
+      if (!filtered.length) {
+        listEl.innerHTML = `
+          <div class="p-8 text-center text-xs text-[#736758] bg-white rounded-xl border border-[#E6DCB8]">
+            Brak zadań w stanie "${currentFilter}". Uruchom nowe zadanie klikając "Nowe Zadanie Agenta".
+          </div>
+        `;
+        return;
+      }
+
+      listEl.innerHTML = filtered.map(t => {
+        const statusConfig = {
+          completed: { badge: 'bg-emerald-50 text-emerald-800 border-emerald-200', label: 'Ukończono (Artefakt na dysku)' },
+          running: { badge: 'bg-amber-50 text-amber-800 border-amber-200 animate-pulse', label: 'Wykonawca aktywny' },
+          queued: { badge: 'bg-blue-50 text-blue-800 border-blue-200', label: 'W kolejce' },
+          failed: { badge: 'bg-red-50 text-red-800 border-red-200', label: 'Błąd / Przerwane' },
+        }[t.status] || { badge: 'bg-stone-50 text-stone-800 border-stone-200', label: t.status };
+
+        const formattedDate = new Date(t.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+        return `
+          <div class="p-4 rounded-xl bg-white border border-[#E6DCB8] shadow-xs space-y-2.5 transition hover:border-[#C5A059]">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-bold text-[#1A1612]">${t.title}</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-semibold border ${statusConfig.badge}">
+                    ${statusConfig.label}
+                  </span>
+                </div>
+                <p class="text-xs text-[#594E3F] mt-0.5">${t.description}</p>
+              </div>
+              <div class="flex items-center gap-2 text-right">
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-[#F4EFE6] text-[#736758] border border-[#E6DCB8]">
+                  ${t.agent}
+                </span>
+                ${(t.status === 'running' || t.status === 'queued') ? `
+                  <button onclick="cancelTask('${t.id}')" class="px-2 py-0.5 rounded text-[10px] text-red-700 bg-red-50 border border-red-200 hover:bg-red-100">
+                    Przerwij
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+
+            ${t.artifact ? `
+              <div class="flex items-center justify-between text-xs p-2 rounded-lg bg-[#FAF7F0] border border-[#E6DCB8]">
+                <div class="flex items-center gap-2 text-[#594E3F]">
+                  <span class="font-bold text-[#C5A059]">Plik artefaktu:</span>
+                  <code class="font-mono text-[11px] text-[#241E18] font-semibold">${t.artifact.path}</code>
+                </div>
+                <span class="text-[10px] font-mono font-tabular text-[#736758]">${t.artifact.sizeBytes} B</span>
+              </div>
+            ` : ''}
+
+            ${t.error ? `
+              <div class="p-2 rounded-lg bg-red-50 border border-red-200 text-red-800 text-xs">
+                ${t.error}
+              </div>
+            ` : ''}
+
+            <!-- Expandable logs summary -->
+            <details class="text-xs text-[#736758]">
+              <summary class="cursor-pointer hover:text-[#1A1612] select-none text-[11px] font-medium">
+                Logi wykonania (${t.logs ? t.logs.length : 0} wpisów) · Utworzono: ${formattedDate}
+              </summary>
+              <div class="mt-2 p-2 rounded bg-[#FAF7F0] border border-[#E6DCB8] font-mono text-[10px] max-h-32 overflow-y-auto space-y-1 text-[#40382E]">
+                ${(t.logs || []).map(l => `<div>${l}</div>`).join('')}
+              </div>
+            </details>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function loadOllamaModels() {
+      try {
+        const res = await fetch('/api/ollama/models');
+        const data = await res.json();
+        const badgeEl = document.getElementById('ollamaBadge');
+        const textEl = document.getElementById('ollamaStatusText');
+        const countEl = document.getElementById('ollamaModelCount');
+
+        if (data.connected) {
+          badgeEl.className = 'px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200';
+          badgeEl.innerText = 'Online';
+          textEl.innerText = 'Demon Ollama połączony';
+          countEl.innerText = `Modele: ${data.models?.length || 0} zainstalowanych`;
+        } else {
+          badgeEl.className = 'px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200';
+          badgeEl.innerText = 'Offline';
+          textEl.innerText = 'Ollama niedostępna lokalnie';
+          countEl.innerText = data.error ? data.error.slice(0, 42) + '…' : 'Brak demona na :11434';
+        }
+      } catch (e) {
+        document.getElementById('ollamaBadge').innerText = 'Błąd';
+        document.getElementById('ollamaStatusText').innerText = 'Błąd odpytania API modeli';
+      }
+    }
+
+    async function loadApps() {
+      try {
+        const res = await fetch('/api/apps/list');
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        const apps = data.apps || [];
+        document.getElementById('appsCount').innerText = apps.length;
+        document.getElementById('appsCountBadge').innerText = `${apps.length} aplikacji`;
+
+        const listEl = document.getElementById('appsList');
+        if (!apps.length) {
+          listEl.innerHTML = '<div class="text-xs text-[#8C7E6D]">Brak aplikacji w apps/</div>';
+          return;
+        }
+
+        listEl.innerHTML = apps.map(a => `
+          <div class="p-2.5 rounded-lg border border-[#E6DCB8] bg-[#FAF7F0] flex items-center justify-between">
+            <div>
+              <div class="font-bold text-[#1A1612] text-xs">${a.name || a.id}</div>
+              <div class="text-[10px] text-[#736758]">${a.id} · ${a.type || 'html5-web'}</div>
+            </div>
+            <a href="/api/apps/preview/${a.id}/" target="_blank" class="px-2 py-1 rounded gold-gradient text-white text-[10px] font-semibold hover:brightness-105">
+              Podgląd
+            </a>
+          </div>
+        `).join('');
+      } catch (e) {
+        document.getElementById('appsList').innerHTML = `<div class="text-xs text-red-600">Błąd: ${e.message}</div>`;
+      }
+    }
+
+    async function executeTerminalCommand() {
+      const input = document.getElementById('terminalInput');
+      const output = document.getElementById('terminalOutput');
+      const btn = document.getElementById('terminalBtn');
+      const cmd = input.value.trim();
+      if (!cmd) return;
+
+      btn.disabled = true;
+      btn.innerText = '…';
+      output.innerText = `[WYKONYWANIE]: ${cmd}\nCzekaj na odpowiedź serwera...`;
+
+      try {
+        const res = await fetch('/api/apps/execute', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ command: cmd })
+        });
+        const data = await res.json();
+        output.innerText = data.output || data.error || '[Brak danych wyjściowych]';
+      } catch (e) {
+        output.innerText = `[BŁĄD POŁĄCZENIA]: ${e.message}`;
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Wykonaj';
+      }
+    }
+
+    async function cancelTask(id) {
+      if (!confirm('Czy na pewno chcesz anulować to zadanie?')) return;
+      try {
+        const res = await fetch('/api/agent-tasks/cancel', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id })
+        });
+        const data = await res.json();
+        if (data.success) {
+          await loadTasks();
+        } else {
+          alert('Błąd anulowania zadania: ' + (data.error || 'Nieznany'));
+        }
+      } catch (e) {
+        alert('Błąd sieci: ' + e.message);
+      }
+    }
+
+    function openNewTaskModal() {
+      document.getElementById('newTaskModal').classList.remove('hidden');
+    }
+
+    function closeNewTaskModal() {
+      document.getElementById('newTaskModal').classList.add('hidden');
+    }
+
+    function handleActionTypeChange() {
+      const type = document.getElementById('taskActionType').value;
+      const group = document.getElementById('appTargetGroup');
+      if (type === 'scaffold_app' || type === 'write_app_file') {
+        group.classList.remove('hidden');
+      } else {
+        group.classList.add('hidden');
+      }
+    }
+
+    async function submitNewTask() {
+      const agent = document.getElementById('taskAgent').value;
+      const actionType = document.getElementById('taskActionType').value;
+      const title = document.getElementById('taskTitle').value;
+      const description = document.getElementById('taskDesc').value;
+      const targetAppId = document.getElementById('taskAppId').value;
+
+      const btn = document.getElementById('submitTaskBtn');
+      btn.disabled = true;
+      btn.innerText = 'Uruchamianie…';
+
+      try {
+        const res = await fetch('/api/agent-tasks/run', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            agent,
+            title,
+            description,
+            actionType,
+            targetAppId,
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeNewTaskModal();
+          await loadTasks();
+        } else {
+          alert('Błąd uruchomienia zadania: ' + (data.error || 'Nieznany'));
+        }
+      } catch (e) {
+        alert('Błąd sieci: ' + e.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Uruchom Wykonawcę';
+      }
+    }
+
+    function refreshData() {
+      checkServerHealth();
+      loadTasks();
+      loadOllamaModels();
+      loadApps();
+    }
+
+    // Initialize
+    refreshData();
+    setInterval(loadTasks, 3000);
+  </script>
+</body>
+</html>

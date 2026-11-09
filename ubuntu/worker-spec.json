@@ -1,0 +1,82 @@
+{
+  "platform": "Ubuntu 24.04 LTS",
+  "agents": [
+    "Aria",
+    "Alex",
+    "Astyria",
+    "Aurelius",
+    "System"
+  ],
+  "worker": {
+    "polymorphic": true,
+    "asynchronous": true,
+    "asymmetric": true,
+    "spherical": true,
+    "dynamic": true,
+    "persistent": true
+  },
+  "observationDimensions": [
+    "code",
+    "logs",
+    "processes",
+    "models",
+    "agents",
+    "security",
+    "resources"
+  ],
+  "principle": "Only real authorized data sources; no simulated visibility",
+  "llm": {
+    "primary": "Ollama dolphin3:8b",
+    "fallback": "Gemini Flash Lite (exact API model pending verification)"
+  },
+  "status": "implementation-in-progress-not-deployed",
+  "agent_connections": {
+    "Aria": {
+      "provider": "manual",
+      "status": "not_connected",
+      "worker": "ubuntu-ai-agent@Aria.service",
+      "daemon": "ubuntu-ai-agent@Aria.service"
+    },
+    "Alex": {
+      "provider": "manual",
+      "status": "not_connected",
+      "worker": "ubuntu-ai-agent@Alex.service",
+      "daemon": "ubuntu-ai-agent@Alex.service"
+    },
+    "Astyria": {
+      "provider": "manual",
+      "status": "not_connected",
+      "worker": "ubuntu-ai-agent@Astyria.service",
+      "daemon": "ubuntu-ai-agent@Astyria.service"
+    },
+    "Aurelius": {
+      "provider": "manual",
+      "status": "not_connected",
+      "worker": "ubuntu-ai-agent@Aurelius.service",
+      "daemon": "ubuntu-ai-agent@Aurelius.service"
+    },
+    "System": {
+      "provider": "ollama",
+      "status": "local_model_not_verified",
+      "worker": "ubuntu-ai-agent@System.service",
+      "daemon": "ubuntu-ai-agent@System.service",
+      "role": "primary_local_ai"
+    }
+  },
+  "primary_agent": "System",
+  "primary_agent_model": "dolphin3:8b",
+  "primary_agent_capabilities": [
+    "local_ollama_chat",
+    "local_root_terminal_exec",
+    "desktop_app_launch",
+    "desktop_window_control_x11",
+    "local_diagnostics",
+    "observation_daemon"
+  ],
+  "primary_agent_limitations": [
+    "desktop control requires logged-in graphical session",
+    "window control requires wmctrl and X11",
+    "root execution currently local terminal only",
+    "not installed or verified on target Ubuntu"
+  ]
+}

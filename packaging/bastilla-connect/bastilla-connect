@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+if [[ -f /etc/bastilla-connect/config.env ]]; then
+  # Root-owned config; do not source arbitrary shell commands.
+  while IFS='=' read -r key value; do
+    case "$key" in
+      BASTILLA_PUBLIC_API_URL|BASTILLA_REMOTE_MCP_URL)
+        if [[ -z "${!key:-}" ]]; then export "$key=$value"; fi
+        ;;
+    esac
+  done < /etc/bastilla-connect/config.env
+fi
+export PYTHONPATH="/opt/bastilla-connect/vendor${PYTHONPATH:+:$PYTHONPATH}"
+case "${1:-check}" in
+  check) exec /usr/bin/python3 /opt/bastilla-connect/connect.py ;;
+  mcp) shift; exec /usr/bin/python3 /opt/bastilla-connect/client.py "$@" ;;
+  *) echo "Usage: bastilla-connect [check|mcp [--call ollama_status|agents_status|vm_status]]" >&2; exit 2 ;;
+esac

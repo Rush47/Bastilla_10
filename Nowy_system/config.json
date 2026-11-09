@@ -1,0 +1,13 @@
+{
+  "name": "Nowy_system",
+  "version": "8.5.1-Desktop-Ready",
+  "description": "Nowy system bazujący na architekturze SVL Kernel v8.5.1-Desktop-Ready (zsynchronizowany z GitHub).",
+  "engine": "Dynamic-Adaptive-Triad-WithoutNLP",
+  "config": {
+    "mode": "New-System-Instance",
+    "persistence_engine": "Stateless-Context-Echo",
+    "listen_port": 3200,
+    "web_port": 3000,
+    "status": "ACTIVE_SYNCHRONIZED"
+  }
+}

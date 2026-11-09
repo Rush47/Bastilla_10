@@ -1,0 +1,20 @@
+#!/bin/sh
+set -eu
+
+case "${1:-}" in
+  configure)
+    if command -v deb-systemd-helper >/dev/null 2>&1; then
+      deb-systemd-helper enable bastillaos-system.service >/dev/null || true
+    fi
+    if command -v systemctl >/dev/null 2>&1; then
+      systemctl daemon-reload || true
+    fi
+    if command -v deb-systemd-invoke >/dev/null 2>&1; then
+      # restart (not start) so upgrades replace the running server code
+      deb-systemd-invoke restart bastillaos-system.service || true
+    fi
+    ;;
+esac
+
+#DEBHELPER#
+exit 0

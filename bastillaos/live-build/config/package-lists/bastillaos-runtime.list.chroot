@@ -1,0 +1,43 @@
+# Baseline runtime and administration tools for the BastillaOS system package.
+python3
+python3-venv
+nodejs
+tar
+sudo
+ca-certificates
+curl
+git
+ufw
+unattended-upgrades
+
+# Wi-Fi support and desktop network management.
+network-manager
+wpasupplicant
+iw
+wireless-regdb
+
+# PipeWire audio stack and ALSA compatibility.
+pipewire-audio
+pipewire-pulse
+pipewire-alsa
+wireplumber
+alsa-utils
+
+# Filesystem, storage, hardware inspection, and general-purpose utilities.
+parted
+gparted
+dosfstools
+e2fsprogs
+btrfs-progs
+xfsprogs
+ntfs-3g
+cryptsetup
+rsync
+unzip
+file
+less
+nano
+vim-tiny
+pciutils
+usbutils
+lshw

@@ -1,0 +1,55 @@
+#!/bin/bash
+
+set -u
+
+host=${BASTILLAOS_HOST:-127.0.0.1}
+port=${BASTILLAOS_PORT:-3000}
+url="http://$host:$port"
+
+# Optional first argument opens a specific BastillaOS view, e.g. without_nlp.
+view=${1:-}
+if [ -n "$view" ]; then
+    case "$view" in
+        *[!a-z_]*)
+            printf 'BastillaOS: nieprawidłowy widok: %s\n' "$view" >&2
+            exit 2
+            ;;
+    esac
+    url="$url/?view=$view"
+fi
+
+notify_error() {
+    if command -v kdialog >/dev/null 2>&1; then
+        kdialog --title BastillaOS --error "$1" >/dev/null 2>&1 || true
+    fi
+    printf 'BastillaOS: %s\n' "$1" >&2
+}
+
+is_ready() {
+    (exec 3<>"/dev/tcp/$host/$port") 2>/dev/null
+}
+
+ready=0
+for _ in $(seq 1 60); do
+    if is_ready; then
+        ready=1
+        break
+    fi
+    sleep 0.5
+done
+
+if [ "$ready" -ne 1 ]; then
+    notify_error "Usługa bastillaos-system nie odpowiada na $url. Sprawdź: systemctl status bastillaos-system"
+    exit 1
+fi
+
+if command -v chromium >/dev/null 2>&1; then
+    exec chromium --app="$url" --class=BastillaOS --name=BastillaOS "$url"
+fi
+
+if command -v xdg-open >/dev/null 2>&1; then
+    exec xdg-open "$url"
+fi
+
+notify_error "Nie znaleziono przeglądarki Chromium ani xdg-open."
+exit 1

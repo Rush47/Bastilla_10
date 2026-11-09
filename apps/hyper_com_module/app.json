@@ -1,0 +1,17 @@
+{
+  "id": "hyper_com_module",
+  "name": "HyperCom — Astra_1 Transmission Console",
+  "type": "python-microservice",
+  "version": "1.0.0",
+  "author": "SVL Chat",
+  "description": "Lokalny panel transmisji z trwałym rejestrem SQLite. Odbiór testowy i nadawanie są lokalne; brak połączenia z Astra_1 lub globalną siecią.",
+  "entry": "index.html",
+  "status": "ready",
+  "created_at": "2026-10-31T11:08:36Z",
+  "files": [
+    "app.json",
+    "index.html",
+    "README.md",
+    "transmitter.py"
+  ]
+}

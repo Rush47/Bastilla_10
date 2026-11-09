@@ -1,0 +1,16 @@
+{
+  "id": "bastilla_os_2",
+  "name": "Bastilla OS 2",
+  "type": "html5-web",
+  "version": "2.0.0",
+  "author": "Astyria & Operator",
+  "description": "Responsywny pulpit nowej generacji Bastilla OS 2 w kolorystyce kości słoniowej i złota (Ivory & Gold), zintegrowany z rejestrem zadań agentów i telemetrią jądra.",
+  "entrypoint": "index.html",
+  "files": [
+    "index.html",
+    "app.json",
+    "README.md"
+  ],
+  "createdAt": "2026-11-01T09:00:00.000Z",
+  "status": "active"
+}

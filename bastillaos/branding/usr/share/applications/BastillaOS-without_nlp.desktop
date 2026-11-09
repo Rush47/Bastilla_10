@@ -1,0 +1,16 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=without_nlp
+GenericName=Deterministic Harmonic Engine
+GenericName[pl]=Deterministyczny Silnik Harmoniczny
+Comment=Euler & Fourier harmonic engine without NLP models
+Comment[pl]=Silnik harmoniczny Eulera i Fouriera bez modeli NLP
+Exec=/usr/lib/bastillaos/open-desktop without_nlp
+TryExec=/usr/lib/bastillaos/open-desktop
+Icon=bastillaos
+Terminal=false
+Categories=System;Utility;Science;Math;
+Keywords=without_nlp;Euler;Fourier;Astyria;BastillaOS;
+StartupNotify=true
+StartupWMClass=BastillaOS

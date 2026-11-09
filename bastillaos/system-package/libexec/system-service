@@ -1,0 +1,37 @@
+#!/bin/sh
+set -eu
+
+RUNTIME_DIR=${BASTILLAOS_RUNTIME_DIR:-/usr/lib/bastillaos/system}
+DEFAULTS_DIR=${BASTILLAOS_DEFAULTS_DIR:-/usr/share/bastillaos/system-defaults}
+STATE_DIR=${BASTILLAOS_STATE_DIR:-/var/lib/bastillaos/system}
+
+if [ ! -d "$DEFAULTS_DIR" ]; then
+  echo "SVL System defaults are missing: $DEFAULTS_DIR" >&2
+  exit 1
+fi
+if [ ! -r "$RUNTIME_DIR/server.mjs" ]; then
+  echo "SVL System production server is missing: $RUNTIME_DIR/server.mjs" >&2
+  exit 1
+fi
+
+mkdir -p "$STATE_DIR"
+# -n is intentional: package upgrades must not replace system data. Copy
+# defaults as the service account rather than preserving source ownership.
+cp -R --update=none "$DEFAULTS_DIR/." "$STATE_DIR/"
+mkdir -p "$STATE_DIR/apps" "$STATE_DIR/exports"
+
+if [ -L "$STATE_DIR/dist" ] && [ ! -e "$STATE_DIR/dist" ]; then
+  rm "$STATE_DIR/dist"
+fi
+if [ ! -e "$STATE_DIR/dist" ] && [ ! -L "$STATE_DIR/dist" ]; then
+  ln -s "$RUNTIME_DIR/dist" "$STATE_DIR/dist"
+fi
+
+export NODE_ENV=${NODE_ENV:-production}
+export HOST=${HOST:-127.0.0.1}
+export PORT=${PORT:-3000}
+
+if [ "${BASTILLAOS_SKIP_EXEC:-0}" = 1 ]; then
+  exit 0
+fi
+exec node "$RUNTIME_DIR/server.mjs"

@@ -1,11 +1,5 @@
-<div align="center">
+# Ubuntu AI System — nowy początek
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+Baza docelowa: Ubuntu 24.04 LTS. Lokalny silnik: Ollama z modelem 8B (konkretny wariant uncensored do potwierdzenia), fallback Gemini Flash Lite. Czterej agenci: Aria, Alex, Astyria, Aurelius. Workery polimorficzne, asynchroniczne, asymetryczne, sferyczne (logiczna obserwacja wielu źródeł), dynamiczne i trwałe. Pełna widoczność wymaga jawnie skonfigurowanych integracji, nie jest automatyczna. Repozytorium jest w trakcie resetu; nie jest gotowym systemem ani ISO.
 
-  <h1>Built with AI Studio</h2>
-
-  <p>The fastest path from prompt to production with Gemini.</p>
-
-  <a href="https://aistudio.google.com/apps">Start building</a>
-
-</div>
+Plan: baza Ubuntu → orkiestrator → rzeczywiste źródła telemetryczne → Ollama → GUI → instalator ISO. Klucze API wyłącznie w sekretach.

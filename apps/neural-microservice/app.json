@@ -1,0 +1,17 @@
+{
+  "id": "neural-microservice",
+  "name": "Mikroserwis Obliczeń Kwantowych",
+  "type": "python-microservice",
+  "version": "1.0.4",
+  "author": "Alex",
+  "description": "Autonomiczny silnik analityczny w Pythonie obliczający macierze tensorowe i wektory prawdopodobieństwa dla Triady.",
+  "entry": "main.py",
+  "status": "ready",
+  "created_at": "2026-10-17T23:00:00Z",
+  "files": [
+    "main.py",
+    "app.json",
+    "index.html",
+    "README.md"
+  ]
+}

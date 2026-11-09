@@ -1,0 +1,10 @@
+# Optional hardware acceleration override for hosts with /dev/kvm.
+# Usage from repository root:
+# docker compose -f bastillaos/vm-gemini-4/compose.yaml -f bastillaos/vm-gemini-4/compose.kvm.yaml up --build -d
+# Never use this override on hosts without /dev/kvm.
+services:
+  vm-gemini-4:
+    devices:
+      - /dev/kvm:/dev/kvm
+    group_add:
+      - "${KVM_GID:?Set KVM_GID to the numeric group ID of /dev/kvm}"

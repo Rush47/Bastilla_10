@@ -1,0 +1,176 @@
+@import "tailwindcss";
+
+/* Futuristic Cybernetic & Glassmorphic Variables */
+:root {
+  --sat: env(safe-area-inset-top, 0px);
+  --sar: env(safe-area-inset-right, 0px);
+  --sab: env(safe-area-inset-bottom, 0px);
+  --sal: env(safe-area-inset-left, 0px);
+  --neon-cyan: #06b6d4;
+  --neon-emerald: #10b981;
+  --neon-purple: #a855f7;
+  --neon-amber: #f59e0b;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background-color: #020617; /* Deep Cyber Void */
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(6, 182, 212, 0.08) 0%, transparent 60%),
+    radial-gradient(circle at 100% 100%, rgba(168, 85, 247, 0.05) 0%, transparent 50%),
+    radial-gradient(circle at 0% 100%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+  background-attachment: fixed;
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+#root {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-shell { padding-top: var(--sat); padding-left: var(--sal); padding-right: var(--sar); }
+.app-main { overflow-wrap: anywhere; overscroll-behavior-y: contain; }
+.app-main > * { flex-shrink: 0; }
+.app-main > :only-child { flex-shrink: 1; }
+.app-main img, .app-main canvas, .app-main iframe { max-width: 100%; }
+.app-main select, .app-main input, .app-main textarea { min-width: 0; max-width: 100%; }
+.app-main pre { max-width: 100%; overflow-x: auto; }
+.app-navigation { padding-bottom: var(--sab); }
+.health-dock { display: none; }
+button:focus-visible, a:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--neon-cyan);
+  outline-offset: 3px;
+}
+@media (max-width: 639px) {
+  .header-actions button, .header-actions a { min-height: 40px; min-width: 40px; justify-content: center; }
+  .app-main button:not([role="switch"]) { min-height: 40px; }
+}
+@media (min-width: 1024px) { .health-dock { display: block; bottom: calc(5.5rem + var(--sab)); } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; }
+}
+
+/* Subtle futuristic background cyber-grid */
+.cyber-grid {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+}
+
+/* Glowing Neon Borders & Holographic Cards */
+.cyber-card {
+  background: rgba(15, 23, 42, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(51, 65, 85, 0.4);
+  box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.6);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cyber-card:hover {
+  border-color: rgba(6, 182, 212, 0.45);
+  box-shadow: 0 0 20px -3px rgba(6, 182, 212, 0.2), inset 0 0 12px rgba(6, 182, 212, 0.05);
+}
+
+.cyber-badge {
+  text-shadow: 0 0 8px currentColor;
+}
+
+/* Prevent Android Chrome / Huawei Browser auto-zoom on input focus, prevent mirror typing, and enforce strict LTR */
+input, select, textarea {
+  direction: ltr !important;
+  text-align: left !important;
+  unicode-bidi: isolate !important;
+  writing-mode: horizontal-tb !important;
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  caret-color: #34d399 !important;
+}
+
+@media (max-width: 640px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Custom smooth futuristic scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(2, 6, 23, 0.8);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(51, 65, 85, 0.8);
+  border-radius: 9999px;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(6, 182, 212, 0.7);
+  box-shadow: 0 0 8px rgba(6, 182, 212, 0.5);
+}
+
+/* Touch friendly utility */
+.touch-callout-none {
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+/* KaTeX custom dark theme styling */
+.katex {
+  font-size: 1.05em;
+  color: #f1f5f9;
+}
+
+.katex-display {
+  margin: 0.6em 0 !important;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0.5em 0.8em;
+  border-radius: 0.5rem;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  box-shadow: 0 0 15px -3px rgba(16, 185, 129, 0.15);
+}
+
+.katex-display > .katex {
+  color: #6ee7b7; /* Emerald neon tint for math display */
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.katex-html {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* Pulse glow keyframes */
+@keyframes neonPulse {
+  0%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 6px currentColor);
+  }
+  50% {
+    opacity: 0.6;
+    filter: drop-shadow(0 0 2px currentColor);
+  }
+}
+
+.animate-neon-pulse {
+  animation: neonPulse 2.5s infinite ease-in-out;
+}
+
+

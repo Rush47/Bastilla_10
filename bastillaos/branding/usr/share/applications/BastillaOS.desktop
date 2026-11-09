@@ -1,0 +1,16 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=BastillaOS
+GenericName=BastillaOS Desktop
+GenericName[pl]=Pulpit BastillaOS
+Comment=Open the local BastillaOS desktop
+Comment[pl]=Otwórz lokalny pulpit BastillaOS
+Exec=/usr/lib/bastillaos/open-desktop
+TryExec=/usr/lib/bastillaos/open-desktop
+Icon=bastillaos
+Terminal=false
+Categories=System;Utility;
+Keywords=BastillaOS;SVL;Triada;Astyria;Alex;Aurelius;
+StartupNotify=true
+StartupWMClass=BastillaOS

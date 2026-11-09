@@ -1,0 +1,27 @@
+[Unit]
+Description=Ubuntu AI root observation daemon (%i)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/opt/ubuntu-ai
+EnvironmentFile=-/etc/ubuntu-ai/daemon.env
+ExecStart=/opt/ubuntu-ai/.venv/bin/python -m ubuntu.daemon --agent %i --interval 60 --data-dir /var/lib/ubuntu-ai/daemons
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/ubuntu-ai
+RestrictSUIDSGID=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+
+[Install]
+WantedBy=multi-user.target

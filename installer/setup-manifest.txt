@@ -1,0 +1,2 @@
+# One-time tasks listed here execute on first boot. Register only audited tasks.
+# LibreChat is intentionally not auto-run until its Docker, user and secrets configuration are validated.

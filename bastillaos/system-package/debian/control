@@ -1,0 +1,12 @@
+Package: bastillaos-system
+Section: admin
+Priority: optional
+Maintainer: BastillaOS
+Version: 1.1.0
+Architecture: amd64
+Depends: coreutils (>= 9.3), git, nodejs (>= 20), python3, systemd, tar
+Description: Local SVL System panel and applications
+ SVL System local web panel, packaged with its production server bundle,
+ generated frontend, default applications, and persistent writable state.
+ Includes the without_nlp deterministic Euler & Fourier harmonic engine as
+ the system command /usr/bin/without-nlp.

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BastillaOS — Wiadomości od agentów</title>
+<style>body{font:16px system-ui;background:#0c1425;color:#eef2ff;max-width:750px;margin:auto;padding:18px}button,select,input{font:inherit;border-radius:10px;padding:12px;background:#192943;color:white;border:1px solid #465877}button{cursor:pointer}button:disabled{opacity:.5}.card{border:1px solid #34445e;border-radius:12px;padding:14px;margin:12px 0;background:#142039}.muted{color:#a6b8d2}input{width:100%;box-sizing:border-box}header{display:flex;justify-content:space-between;gap:10px;align-items:center}a{color:#91c6ff}.agent{font-weight:700;color:#8ed6ff}#feed{min-height:180px}label{display:block;margin:14px 0}#toast{position:fixed;bottom:18px;left:12px;right:12px;max-width:520px;margin:auto;z-index:99;background:#243d65;border:2px solid #91c6ff;border-radius:16px;padding:16px;box-shadow:0 12px 36px #0009}#toast[hidden]{display:none}#toast p{white-space:pre-wrap;overflow-wrap:anywhere}#toast button{margin-right:8px}</style></head>
+<body><header><h2>BastillaOS · Rozmowy dwukierunkowe</h2><a href="/">System</a></header>
+<p class="muted">Agenci mogą napisać w dowolnym momencie przez swój podłączony proces AI. Wiadomości pozostają zapisane po restarcie serwera. Ta strona sprawdza nowe wiadomości co 5 sekund.</p>
+
+<p><button id="notify" type="button">Włącz powiadomienia</button> <span class="muted" id="notifyStatus"></span></p>
+<div id="toast" role="alertdialog" aria-label="Nowa wiadomość od agenta" hidden><strong id="toastTitle"></strong><p id="toastBody"></p><button id="toastReply" type="button">Odpowiedz</button><button id="toastDismiss" type="button">Zamknij</button></div>
+<p id="status" role="status" class="muted">Ładowanie...</p>
+<section id="feed" aria-live="polite"></section>
+<hr>
+<h3>Odpowiedz agentowi</h3>
+<select id="agent"><option>Aria</option><option>Alex</option><option>Astyria</option><option>Aurelius</option></select>
+<form id="replyForm"><label for="message">Twoja wiadomość</label><input id="message" maxlength="10000" required placeholder="Napisz do agenta..."><p><button id="send">Wyślij</button></p></form>
+<div id="reply" class="card" aria-live="polite"></div>
+<script>
+const feed=document.querySelector('#feed'),status=document.querySelector('#status');
+const agent=document.querySelector('#agent'),message=document.querySelector('#message'),reply=document.querySelector('#reply');
+
+let busy=false, lastIds=new Set(),initialized=false;
+const toast=document.querySelector('#toast'),toastTitle=document.querySelector('#toastTitle'),toastBody=document.querySelector('#toastBody');
+const notify=document.querySelector('#notify'),notifyStatus=document.querySelector('#notifyStatus');
+let currentPopup=null;
+function updateNotificationStatus(){
+ const supported='Notification' in window && window.isSecureContext;
+ notify.disabled=!supported || Notification.permission==='granted';
+ notifyStatus.textContent=!supported?'Powiadomienia systemowe niedostępne w tej przeglądarce. Pop-upy w aplikacji pozostają aktywne.':Notification.permission==='granted'?'Powiadomienia przeglądarki włączone.':Notification.permission==='denied'?'Powiadomienia zablokowane w ustawieniach przeglądarki.':'Kliknij, aby zezwolić na powiadomienia.';
+}
+notify.onclick=async()=>{if('Notification' in window && window.isSecureContext){await Notification.requestPermission();updateNotificationStatus()}};
+function showPopup(m){
+ currentPopup=m;toastTitle.textContent='Nowa wiadomość: '+m.agent;toastBody.textContent=m.text;toast.hidden=false;
+ if('Notification' in window && Notification.permission==='granted'){
+   try{const n=new Notification('BastillaOS · '+m.agent,{body:m.text,tag:'bastilla-agent-'+m.id});n.onclick=()=>{window.focus();selectPopupAgent()}}catch(e){console.warn('Browser notification unavailable',e)}
+ }
+}
+function selectPopupAgent(){if(!currentPopup)return;agent.value=currentPopup.agent;message.focus();toast.hidden=true}
+document.querySelector('#toastReply').onclick=selectPopupAgent;
+document.querySelector('#toastDismiss').onclick=()=>{toast.hidden=true};
+updateNotificationStatus();
+async function api(url,method='GET',data){const r=await fetch(url,{method,headers:{'Content-Type':'application/json'},body:data?JSON.stringify(data):undefined});if(!r.ok)throw Error('HTTP '+r.status);return r.json()}
+async function refresh(){if(busy)return;busy=true;try{const d=await api('/api/agents/inbox');status.textContent='Nieprzeczytane: '+d.unread+' · Agenci mogą pisać w dowolnym momencie';
+feed.replaceChildren();for(const m of d.messages.slice().reverse()){const card=document.createElement('article');card.className='card';const title=document.createElement('div');title.className='agent';title.textContent=m.agent+' · '+new Date(m.at).toLocaleString('pl-PL')+(m.read?'':' · NOWA');const p=document.createElement('p');p.textContent=m.text;const provider=document.createElement('small');provider.className='muted';provider.textContent='Model: '+m.provider;const btn=document.createElement('button');btn.textContent='Odpowiedz';btn.onclick=async()=>{agent.value=m.agent;message.focus();if(!m.read){await api('/api/agents/inbox/read','POST',{id:m.id});refresh()}};card.append(title,p,provider,document.createElement('br'),btn);feed.append(card);if(initialized&&!lastIds.has(m.id)&&!m.read)showPopup(m);}lastIds=new Set(d.messages.map(m=>m.id));initialized=true;}catch(e){status.textContent='Błąd połączenia: '+e.message}finally{busy=false}}
+document.querySelector('#replyForm').onsubmit=async e=>{e.preventDefault();const send=document.querySelector('#send');send.disabled=true;reply.textContent='Czekam na odpowiedź...';try{const d=await api('/api/triad/message','POST',{agent:agent.value,message:message.value});reply.textContent=JSON.stringify(d,null,2).slice(0,6000);if(d.success!==false)message.value=''}catch(err){reply.textContent='Błąd: '+err.message}finally{send.disabled=false}};
+refresh();setInterval(refresh,5000);
+</script></body></html>

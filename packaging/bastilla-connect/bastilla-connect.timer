@@ -1,0 +1,11 @@
+[Unit]
+Description=Periodic BastillaOS Connect API check
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+Persistent=true
+Unit=bastilla-connect.service
+
+[Install]
+WantedBy=timers.target

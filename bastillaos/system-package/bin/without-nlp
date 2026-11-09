@@ -1,0 +1,3 @@
+#!/bin/sh
+# BastillaOS: systemowa komenda silnika without_nlp (deterministyczny, bez NLP/LLM).
+exec /usr/bin/python3 -I /usr/lib/bastillaos/without_nlp/engine.py "$@"

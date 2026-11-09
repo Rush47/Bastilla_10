@@ -1,0 +1,3 @@
+# The live-build option embeds Debian Installer for installation from the live
+# session; this package provides its desktop launcher.
+debian-installer-launcher

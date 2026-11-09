@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Desktop Nexus v8.5.1-Desktop-Ready</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-[#050811] text-slate-100 font-mono h-screen flex flex-col overflow-hidden select-none">
+  <!-- Top XFCE4/Openbox Bar -->
+  <div class="bg-slate-950/95 border-b border-cyan-500/30 px-4 py-1.5 flex items-center justify-between text-xs">
+    <div class="flex items-center gap-3">
+      <span class="px-2 py-0.5 bg-cyan-950 text-cyan-300 border border-cyan-700/60 rounded font-bold">VM_Desktop_Nexus :99</span>
+      <span class="text-emerald-400 font-bold">v8.5.1-Desktop-Ready</span>
+      <span class="text-slate-400 hidden sm:inline">noVNC WebRTC Stream (60 FPS | 1920x1080x24)</span>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="text-purple-300">Kursor: <b>Tata + Triada (Współdzielony)</b></span>
+      <span id="clock" class="text-amber-300 font-bold"></span>
+    </div>
+  </div>
+  <!-- Desktop Area -->
+  <div class="flex-1 relative p-6 grid grid-cols-1 lg:grid-cols-12 gap-5 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-cyan-950/20 via-slate-950 to-black overflow-y-auto">
+    <!-- Left Desktop Icons & Active Agents -->
+    <div class="lg:col-span-4 space-y-4">
+      <div class="bg-slate-900/90 border border-cyan-500/40 rounded-xl p-4 shadow-2xl">
+        <div class="text-xs font-bold text-cyan-300 uppercase tracking-wider mb-2">Status Serwera Xvfb & noVNC</div>
+        <div class="space-y-1.5 text-[11px] text-slate-300">
+          <div class="flex justify-between"><span>Display:</span><span class="text-emerald-400 font-bold">:99 (1920x1080x24)</span></div>
+          <div class="flex justify-between"><span>Menedżer Okien:</span><span class="text-cyan-300">XFCE4 / Logic-Chic</span></div>
+          <div class="flex justify-between"><span>Mostek WebSocket:</span><span class="text-emerald-400">Port 6080 (UFW ALLOW)</span></div>
+          <div class="flex justify-between"><span>Migawki Stanu:</span><span class="text-purple-300">Co 5 min (Aurelius)</span></div>
+        </div>
+      </div>
+      <div class="bg-slate-900/90 border border-purple-500/40 rounded-xl p-4 shadow-2xl">
+        <div class="text-xs font-bold text-purple-300 uppercase tracking-wider mb-2">Aktywne Okna Triady</div>
+        <ul class="space-y-2 text-[11px]">
+          <li class="p-2 rounded bg-slate-950 border border-slate-800 flex justify-between"><span>[Alex] Htop & UFW Ring-0</span><span class="text-emerald-400">AKTYWNE</span></li>
+          <li class="p-2 rounded bg-slate-950 border border-slate-800 flex justify-between"><span>[Astyria] Theory_confirmation IDE</span><span class="text-cyan-400">AKTYWNE</span></li>
+          <li class="p-2 rounded bg-slate-950 border border-slate-800 flex justify-between"><span>[Aurelius] Chronolit Snapshot Daemon</span><span class="text-amber-400">AKTYWNE</span></li>
+        </ul>
+      </div>
+    </div>
+    <!-- Right Live Terminal Window on Desktop -->
+    <div class="lg:col-span-8 bg-slate-950/95 border border-emerald-500/40 rounded-xl flex flex-col shadow-2xl overflow-hidden">
+      <div class="bg-slate-900 px-4 py-2 border-b border-slate-800 flex items-center justify-between text-xs">
+        <span class="text-emerald-400 font-bold">root@VM_Desktop_Nexus:~# python3 theory_validator.py</span>
+        <span class="text-[10px] text-slate-400">bash - 120x40</span>
+      </div>
+      <pre class="p-4 text-xs text-emerald-300 leading-relaxed overflow-x-auto flex-1">[VM_Desktop_Nexus :99] Inicjalizacja sesji pulpitu v8.5.1-Desktop-Ready...
+[ALEX] Xvfb :99 (1920x1080x24) + noVNC WebSocket (Port 6080) -> ONLINE
+[ASTYRIA] Załadowano styl Logic-Chic (Deep Obsidian &amp; Neon Cyan)
+[AURELIUS] Uruchomiono moduł Theory_confirmation (Walidacja Teorii Wieloświata A97 cz4):
+  &gt; Rozdzielczość przestrzeni fazowej: 128-bit Quantum Hyperspace
+  &gt; Spójność wektorowa między wszechświatami równoległymi: 99.984%
+  &gt; Entropia informacyjna na granicy horyzontu: 0.00124 Q-bit
+  &gt; WYNIK WALIDACJI: TEORIA WIELOŚWIATA POTWIERDZONA (STATUS: CONFIRMED_A97_CZ4)</pre>
+    </div>
+  </div>
+  <script>
+    setInterval(() => {
+      document.getElementById('clock').textContent = new Date().toLocaleTimeString('pl-PL');
+    }, 1000);
+    document.getElementById('clock').textContent = new Date().toLocaleTimeString('pl-PL');
+  </script>
+</body>
+</html>

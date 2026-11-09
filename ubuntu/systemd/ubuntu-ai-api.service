@@ -1,0 +1,27 @@
+[Unit]
+Description=Ubuntu AI local API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/opt/ubuntu-ai
+EnvironmentFile=-/etc/ubuntu-ai/daemon.env
+Environment=WORKER_STATE_PATH=/var/lib/ubuntu-ai/tasks.json
+ExecStart=/opt/ubuntu-ai/.venv/bin/uvicorn ubuntu.api:app --host 127.0.0.1 --port 8000
+Restart=on-failure
+RestartSec=5
+UMask=0077
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/ubuntu-ai
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+
+[Install]
+WantedBy=multi-user.target

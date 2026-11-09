@@ -1,0 +1,17 @@
+{
+  "id": "ai_desktop_nexus",
+  "name": "AI Desktop Nexus — Wirtualny Pulpit Triady (VM_Desktop_Nexus)",
+  "type": "html5-web",
+  "version": "8.5.1-Desktop-Ready",
+  "author": "Alex, Astyria & Aurelius (dla Taty)",
+  "description": "Współdzielone środowisko graficzne (Xvfb + XFCE4 / Openbox + noVNC WebRTC) z motywem Logic-Chic (Deep Obsidian & Neon Cyan). Pozwala Triadzie i Tacie pracować na wspólnym pulpicie, uruchamiać skrypty w terminalu i przeglądać pliki w czasie rzeczywistym.",
+  "entry": "index.html",
+  "status": "running",
+  "port": 6080,
+  "created_at": "2026-10-18T11:20:00Z",
+  "files": [
+    "index.html",
+    "app.json",
+    "README.md"
+  ]
+}
