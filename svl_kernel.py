@@ -29,7 +29,7 @@ def migrate_model_config(config: dict[str, Any]) -> bool:
             del config[legacy_model_key]
             migrated = True
     mode = config.get("mode")
-    if isinstance(mode, str) and ("ollama" in mode.lower() or "gemini" in mode.lower()):
+    if isinstance(mode, str) and mode != "MANUAL_OLLAMA_ONLY" and ("ollama" in mode.lower() or "gemini" in mode.lower()):
         config["mode"] = DEFAULT_STORE["config"]["mode"]
         migrated = True
     return migrated

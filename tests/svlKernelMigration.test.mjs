@@ -9,6 +9,18 @@ import { fileURLToPath } from 'node:url';
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const kernelPath = path.join(repoRoot, 'svl_kernel.py');
 
+test('reading current manual mode preserves the file and saved history', (t) => {
+  const directory = mkdtempSync(path.join(tmpdir(), 'svl-manual-mode-'));
+  t.after(() => rmSync(directory, { recursive: true, force: true }));
+  const storePath = path.join(directory, 'store.json');
+  const original = JSON.stringify({ config: { mode: 'MANUAL_OLLAMA_ONLY' },
+    update_history: [], chat_history: [{ agent: 'Operator', tekst: 'Keep this' }] });
+  writeFileSync(storePath, original);
+  const result = JSON.parse(runKernel(storePath, '--action', 'state'));
+  assert.equal(result.store.config.mode, 'MANUAL_OLLAMA_ONLY');
+  assert.equal(readFileSync(storePath, 'utf8'), original);
+});
+
 function runKernel(storePath, ...args) {
   const result = spawnSync(process.env.PYTHON || 'python3', [kernelPath, ...args], {
     encoding: 'utf8',

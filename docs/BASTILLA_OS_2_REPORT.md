@@ -2,7 +2,7 @@
 
 ## Jedyny standard Dolphin 8B i usunięcie automatyki — 2026-11-09
 
-Aktualna poprawka dla `Rush47/Bastilla_10` zastępuje wcześniejsze ustawienia modeli i automatycznych misji opisane niżej. Jedynym modelem rozmowy jest `dolphin-llama3:8b`. `src/kernel/modelPolicy.ts` ignoruje stare `OLLAMA_MODEL`, `LLM_PROVIDERS` i klucze innych dostawców; adres istniejącej Ollamy pozostaje konfigurowalny. Backend odrzuca odpowiedź niepotwierdzającą właściwego modelu i nie uruchamia zamiennika, nawet gdy są pobrane mniejsze modele.
+Aktualna poprawka dla `Rush47/Bastilla_10` zastępuje wcześniejsze ustawienia modeli i automatycznych misji opisane niżej. Jedynym modelem rozmowy jest `dolphin-llama3:8b`. `src/kernel/modelPolicy.ts` ignoruje stare `OLLAMA_MODEL`, `LLM_PROVIDERS` i klucze innych dostawców; adres istniejącej Ollamy pozostaje konfigurowalny. Backend odrzuca odpowiedź niepotwierdzającą właściwego modelu i nie uruchamia zamiennika, nawet gdy są pobrane mniejsze modele. Odczyt aktualnego trybu ręcznego nie uruchamia starej migracji ustawień ani nie przepisuje pliku stanu.
 
 Usunięto instalatory, provisioning VM, skrypty autostartu i reconnect, npm self-update, automatyczne commity/pushe, startowe nadpisywanie misji, pobieranie/rozgrzewanie modeli w tle, odtwarzanie aplikacji przy GET oraz wykonywanie kodu z odpowiedzi modelu. Usunięto instalacyjne hooki pakietów, timer Connect i autostart zmian tapety; wyłączono unattended-upgrades w konfiguracji obrazu. Pozostały jawne ręczne operacje, odczyt statusu i narzędzia budowania/testowania. Nie usuwano wag istniejących modeli, danych, archiwów ani dysków VM. Zmiana repozytorium nie wyłącza wcześniej skonfigurowanych usług na innym hoście.
 
@@ -10,7 +10,7 @@ Ekran modeli rozróżnia standard, obecność wag i załadowane modele. Błąd `
 
 Weryfikacja:
 
-- `npm ci`: 317 pakietów; `npm run verify`: 103/103 testy, TypeScript i oba buildy przeszły.
+- `npm ci`: 317 pakietów; `npm run verify`: 104/104 testy, TypeScript i oba buildy przeszły.
 - `python3 -m unittest ubuntu.tests.test_ollama_agent`: 10/10 testów.
 - Test prawdziwego serwera HTTP z kontrolowanym, sztucznym API Ollama: dwa starty ze starą konfiguracją i `FULL_AUTO`, wybór wyłącznie 8B, brak zmian stanu/kodu przy odczytach, brak startowej inferencji/instalacji, brak wykonania polecenia z odpowiedzi, jawne błędy przy braku lub innym modelu i bez zapisu zamiennika. To test kontraktu, nie inferencja modelu 8B.
 - Kontrola API: pięć endpointów osiągalnych. Chromium: wyłącznie standard 8B mimo starych zmiennych, brak automatycznych POST podczas nawigacji, jawny błąd niedostępnej Ollamy, zachowany tekst po błędzie i ekran 390 px bez poziomego przewijania.
